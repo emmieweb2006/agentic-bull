@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: PASTE_SITE_URL_HERE/sitemap.xml
-# AI agents: see PASTE_SITE_URL_HERE/llms.txt and PASTE_SITE_URL_HERE/mint.json
+Sitemap: https://agentic-bull.pages.dev/sitemap.xml
+# AI agents: see https://agentic-bull.pages.dev/llms.txt and https://agentic-bull.pages.dev/mint.json

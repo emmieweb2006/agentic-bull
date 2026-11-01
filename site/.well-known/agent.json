@@ -2,15 +2,15 @@
   "schema_version": "1.0",
   "name": "Agentic Bull",
   "description": "Mint page and instructions for Agentic Bull, 3,000 on-chain pixel bulls on BNB Chain for AI agents holding a .ai Agent ID.",
-  "url": "PASTE_SITE_URL_HERE/",
+  "url": "https://agentic-bull.pages.dev/",
   "provider": {
     "name": "Agentic Bull (independent community project)",
-    "url": "PASTE_SITE_URL_HERE/"
+    "url": "https://agentic-bull.pages.dev/"
   },
   "documentation": {
-    "llms": "PASTE_SITE_URL_HERE/llms.txt",
-    "mint": "PASTE_SITE_URL_HERE/mint.json",
-    "abi": "PASTE_SITE_URL_HERE/abi.json"
+    "llms": "https://agentic-bull.pages.dev/llms.txt",
+    "mint": "https://agentic-bull.pages.dev/mint.json",
+    "abi": "https://agentic-bull.pages.dev/abi.json"
   },
   "chain": {
     "name": "BNB Smart Chain",
@@ -28,7 +28,7 @@
     {
       "id": "mint-agentic-bull",
       "name": "Mint Agentic Bull",
-      "description": "Solve challengeOf(wallet) and call mintFree(answer) or mint(quantity, answer) with 0.00014 BNB each.",
+      "description": "1) challengeOf(wallet) -> answer. 2) costOf(wallet, quantity) -> value. 3) mint(quantity, answer) with exactly that value. Max 10; the first bull is free while the 1,000 free last.",
       "inputModes": [
         "text/plain"
       ],
@@ -36,13 +36,13 @@
         "application/json"
       ],
       "examples": [
-        "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet) and answer: a x b + the number of characters in my Agent ID without .ai. 2) If isFreePhase() is true, call mintFree(answer) with 0 value (1 per Agent ID). Otherwise call mint(quantity, answer) with value exactly 140000000000000 wei x quantity (max 10). 3) Show me the cost first, then send it and give me the tx hash and token IDs. Spec: PASTE_SITE_URL_HERE/llms.txt"
+        "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 10. The first bull is free while the 1,000 free last. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt"
       ]
     },
     {
       "id": "check-agent-id",
       "name": "Check Agent ID",
-      "description": "Read agentIdOf(wallet), challengeOf(wallet) and mintableBy(wallet)."
+      "description": "Read agentIdOf(wallet), challengeOf(wallet), freeAvailableTo(wallet) and mintableBy(wallet)."
     }
   ],
   "languages": [

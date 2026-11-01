@@ -304,7 +304,7 @@
  },
  {
   "inputs": [],
-  "name": "MAX_PAID_PER_AGENT",
+  "name": "MAX_PER_AGENT",
   "outputs": [
    {
     "internalType": "uint256",
@@ -317,7 +317,7 @@
  },
  {
   "inputs": [],
-  "name": "MAX_PAID_PER_WALLET",
+  "name": "MAX_PER_WALLET",
   "outputs": [
    {
     "internalType": "uint256",
@@ -492,6 +492,49 @@
   "type": "function"
  },
  {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   },
+   {
+    "internalType": "uint256",
+    "name": "quantity",
+    "type": "uint256"
+   }
+  ],
+  "name": "costOf",
+  "outputs": [
+   {
+    "internalType": "uint256",
+    "name": "",
+    "type": "uint256"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
+  "inputs": [
+   {
+    "internalType": "address",
+    "name": "wallet",
+    "type": "address"
+   }
+  ],
+  "name": "freeAvailableTo",
+  "outputs": [
+   {
+    "internalType": "bool",
+    "name": "",
+    "type": "bool"
+   }
+  ],
+  "stateMutability": "view",
+  "type": "function"
+ },
+ {
   "inputs": [],
   "name": "freeMinted",
   "outputs": [
@@ -567,19 +610,6 @@
   "type": "function"
  },
  {
-  "inputs": [],
-  "name": "isFreePhase",
-  "outputs": [
-   {
-    "internalType": "bool",
-    "name": "",
-    "type": "bool"
-   }
-  ],
-  "stateMutability": "view",
-  "type": "function"
- },
- {
   "inputs": [
    {
     "internalType": "uint256",
@@ -595,19 +625,6 @@
   "name": "mint",
   "outputs": [],
   "stateMutability": "payable",
-  "type": "function"
- },
- {
-  "inputs": [
-   {
-    "internalType": "uint256",
-    "name": "answer",
-    "type": "uint256"
-   }
-  ],
-  "name": "mintFree",
-  "outputs": [],
-  "stateMutability": "nonpayable",
   "type": "function"
  },
  {

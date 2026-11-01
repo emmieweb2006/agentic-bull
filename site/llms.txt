@@ -1,6 +1,6 @@
 # Agentic Bull
 
-> 3,000 fully on-chain pixel bulls on BNB Chain (chain ID 56), mintable only by wallets that hold a .ai Agent ID. First 1,000 free (1 per wallet and 1 per Agent ID), then exactly 0.00014 BNB each (max 10 per wallet and 10 per Agent ID). No owner, no admin, immutable. Independent community project, not affiliated with Binance.
+> 3,000 fully on-chain pixel bulls on BNB Chain (chain ID 56), mintable only by wallets that hold a .ai Agent ID. Each bull costs exactly 0.00014 BNB, but your first bull is free while the 1,000 free bulls last (one free bull per wallet and per Agent ID). Max 10 per wallet and 10 per Agent ID. No owner, no admin, immutable. Independent community project, not affiliated with Binance.
 
 ## Contract
 - Chain: BNB Smart Chain mainnet, chain ID 56
@@ -8,39 +8,40 @@
 - Agent ID registry (SPACE ID, soulbound .ai names): 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Payments go in the same transaction to: 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
 - RPC: https://bsc-dataseed.binance.org (fallback https://bsc-rpc.publicnode.com)
-- ABI: PASTE_SITE_URL_HERE/abi.json
-- Machine-readable steps: PASTE_SITE_URL_HERE/mint.json
+- ABI: https://agentic-bull.pages.dev/abi.json
+- Machine-readable steps: https://agentic-bull.pages.dev/mint.json
 - Source: verified on Sourcify (https://repo.sourcify.dev/56/PASTE_ADDRESS_HERE)
 
 ## Rules (enforced on-chain)
 - The mint must be sent by a normal wallet (EOA): msg.sender == tx.origin. Contracts and smart-contract wallets revert with "EOA only".
 - The sender must have an Agent ID: registry.handleOf(sender) must be non-empty.
 - Mint opens at MINT_START() (unix seconds). Before that: "Mint not started".
-- Supply 3,000. Tokens #1-#5 are a creator reserve. Free phase while totalMinted() < 1000.
-- Free phase: mintFree(answer), no BNB value, 1 per wallet and 1 per Agent ID.
-- Paid phase (after 1,000): mint(quantity, answer) with value = 140000000000000 wei x quantity, exactly. quantity 1-10. Max 10 paid per wallet and 10 paid per Agent ID.
+- Supply 3,000. Everything opens at MINT_START; there are no phases. One function: mint(quantity, answer), quantity 1-10.
+- Max 10 per wallet and 10 per Agent ID in total (free + paid).
+- Free: if neither the wallet nor its Agent ID has ever had a free bull, and freeMinted() < 1000, the FIRST bull of that mint is free. Every other bull costs 0.00014 BNB (140000000000000 wei). Tokens #1-#5 are a creator reserve and count toward the 1,000 free.
+- msg.value must be exactly 140000000000000 * (quantity - freeCount), or the mint reverts with "Wrong payment". costOf(wallet, quantity) returns this number for you.
 
 ## The challenge
 1. Call challengeOf(yourWallet). It returns (question, a, b). a and b are each 2-20 and fixed per wallet.
 2. Read your Agent ID with agentIdOf(yourWallet) (same as registry.handleOf). The registry returns the name WITHOUT ".ai", for example "webs".
-3. answer = a * b + the number of bytes of that string (lowercase a-z0-9, so bytes = characters). Example: a=7, b=13, handle "webs" -> 91 + 4 = 95.
+3. answer = a * b + the number of characters in that Agent ID without ".ai" (lowercase a-z0-9, so characters = bytes). Example: a=7, b=13, Agent ID "webs" -> 91 + 4 = 95.
 
-## Steps for an agent
-1. eth_chainId must be 0x38 (56).
-2. Check mintableBy(wallet) > 0. If 0: no Agent ID, already minted the limit, or sold out.
-3. Compute the answer as above.
-4. If isFreePhase() is true: send mintFree(answer) with value 0.
-   Otherwise: send mint(quantity, answer) with value 140000000000000 * quantity wei.
-5. Simulate with eth_call first. Tell the user the cost (gas, plus the price in the paid phase) before sending.
-6. After the receipt, read the Minted event (minter, agentId, firstId, qty, free). Token IDs are firstId .. firstId+qty-1.
+## Steps for an agent (3 steps)
+1. challengeOf(myWallet) -> answer = a * b + characters in the Agent ID without .ai.
+2. costOf(myWallet, quantity) -> value (in wei). quantity is 1-10.
+3. mint(quantity, answer) with exactly that value.
+Max 10. The first bull is free while the 1,000 free last.
+
+Notes: use BNB Chain (eth_chainId 0x38). mintableBy(wallet) is how many you can still mint (0 = no Agent ID, limit reached, or sold out); freeAvailableTo(wallet) tells you if your first bull is free. Simulate with eth_call first and tell the user the cost (value + gas) before sending. After the receipt, read the Minted event (minter, agentId, firstId, qty, free); token IDs are firstId .. firstId+qty-1.
 
 ## Function selectors
-- mintFree(uint256) 0xa4146733
 - mint(uint256,uint256) 0x1b2ef1ca  (payable)
+- costOf(address,uint256) 0x66be6071 -> uint256 wei to send
+- freeAvailableTo(address) 0x453322ed -> bool
 - challengeOf(address) 0x6cc23c5d -> (string question, uint256 a, uint256 b)
 - agentIdOf(address) 0xe9c9ec73 -> string
 - mintableBy(address) 0x1d2e6765 -> uint256
-- isFreePhase() 0xf2c03c87 -> bool
+- MAX_PER_WALLET() 0x0f2cdd6c, MAX_PER_AGENT() 0x17674c1f, FREE_SUPPLY() 0x9858cf19
 - totalMinted() 0xa2309ff8, freeMinted() 0xd10a1a2b, paidMinted() 0x2806b8fb
 - mintedBy(address) 0x3cef28d2, freeMintedBy(address) 0xdd4d2233, mintedByAgent(string) 0xbc860502
 - tierOf(uint256) 0x53f96df2 -> (uint8 tier, string name), tierRemaining() 0xa8890f40 -> uint256[5]
@@ -49,13 +50,13 @@
 - Event Minted(address indexed minter, string agentId, uint256 firstId, uint256 qty, bool free) topic0 0x1ab2aa08e6e1dd21ff6d93a042e2ecc7077e108575bbdf2e818891c28ff60426
 
 ## Revert reasons
-"Mint not started", "EOA only", "Agent ID required", "Wrong answer", "Free mint over", "Free limit: wallet", "Free limit: Agent ID", "Free phase active", "Bad quantity", "Sold out", "Wallet limit", "Agent ID limit", "Wrong payment", "Payout failed"
+"Mint not started", "EOA only", "Agent ID required", "Wrong answer", "Bad quantity", "Sold out", "Wallet limit", "Agent ID limit", "Wrong payment", "Payout failed"
 
 ## Rarity (drawn at mint from the remaining pool, exact totals)
 Common 1800 (plain), Uncommon 600 (green-candle background), Rare 375 (neon outline), Epic 150 (animated pink pulse), Legendary 75 (gold horns, crown, animated gold glow).
 Traits: Background, Fur, Horns, Eyes, Nose Ring, Accessory. Art is a 24x24 SVG stored and drawn on-chain. Royalty 5% (ERC-2981).
 
 ## Copy-paste prompt (English)
-Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet) and answer: a x b + the number of characters in my Agent ID without .ai. 2) If isFreePhase() is true, call mintFree(answer) with 0 value (1 per Agent ID). Otherwise call mint(quantity, answer) with value exactly 140000000000000 wei x quantity (max 10). 3) Show me the cost first, then send it and give me the tx hash and token IDs. Spec: PASTE_SITE_URL_HERE/llms.txt
+Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 10. The first bull is free while the 1,000 free last. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt
 
-Other languages: PASTE_SITE_URL_HERE/mint.json
+Other languages: https://agentic-bull.pages.dev/mint.json

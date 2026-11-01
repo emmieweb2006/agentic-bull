@@ -9,21 +9,21 @@ Computed with ethers from the compiled ABI (keccak256 of the signature, first 4 
 | `0x70a08231` | `balanceOf(address)` | view | uint256 |
 | `0x6cc23c5d` | `challengeOf(address)` | view | string question, uint256 a, uint256 b |
 | `0xe8a3d485` | `contractURI()` | pure | string |
+| `0x66be6071` | `costOf(address,uint256)` | view | uint256 |
 | `0x9858cf19` | `FREE_SUPPLY()` | view | uint256 |
+| `0x453322ed` | `freeAvailableTo(address)` | view | bool |
 | `0xd10a1a2b` | `freeMinted()` | view | uint256 |
 | `0xdd4d2233` | `freeMintedBy(address)` | view | uint256 |
 | `0x081812fc` | `getApproved(uint256)` | view | address |
 | `0xe985e9c5` | `isApprovedForAll(address,address)` | view | bool |
-| `0xf2c03c87` | `isFreePhase()` | view | bool |
-| `0xc0e1e21c` | `MAX_PAID_PER_AGENT()` | view | uint256 |
-| `0x3e6eaad8` | `MAX_PAID_PER_WALLET()` | view | uint256 |
+| `0x17674c1f` | `MAX_PER_AGENT()` | view | uint256 |
+| `0x0f2cdd6c` | `MAX_PER_WALLET()` | view | uint256 |
 | `0x32cb6b0c` | `MAX_SUPPLY()` | view | uint256 |
 | `0xc6374d0c` | `MINT_START()` | view | uint256 |
 | `0x1b2ef1ca` | `mint(uint256,uint256)` | payable | - |
 | `0x1d2e6765` | `mintableBy(address)` | view | uint256 |
 | `0x3cef28d2` | `mintedBy(address)` | view | uint256 |
 | `0xbc860502` | `mintedByAgent(string)` | view | uint256 |
-| `0xa4146733` | `mintFree(uint256)` | nonpayable | - |
 | `0x06fdde03` | `name()` | view | string |
 | `0x6352211e` | `ownerOf(uint256)` | view | address |
 | `0x2806b8fb` | `paidMinted()` | view | uint256 |

@@ -2,34 +2,37 @@
 
   AgenticBull
     deployment
-      ✔ mints creator reserve #1-#5 to PAYOUT, counted as free (526ms)
+      ✔ mints creator reserve #1-#5 to PAYOUT, counted as free (508ms)
       ✔ constants, registry, royalty 5% to PAYOUT, interfaces
       ✔ has no owner / admin / withdraw / setter / pause functions
-      ✔ contractURI is on-chain JSON with the marketplace fields (124ms)
+      ✔ contractURI is on-chain JSON with the marketplace fields (77ms)
       ✔ tokenURI: base64 JSON, 480x480 crispEdges 24x24 SVG, 7 attributes, exact description
     gate
       ✔ reverts before MINT_START
-      ✔ a wallet without an Agent ID reverts
+      ✔ a wallet without an Agent ID reverts (50ms)
       ✔ a wrong answer reverts, the right one mints
       ✔ contract callers revert with EOA only (free and paid)
-      ✔ challengeOf: a and b in 2..20, question wording, depends on wallet (369ms)
-    free phase
-      ✔ 1 free per wallet (40ms)
-      ✔ 1 free per Agent ID, even from another wallet
-      ✔ mintFree is not payable, and paid mint is closed during the free phase
+      ✔ challengeOf: a and b in 2..20, question wording, depends on wallet (357ms)
+    first bull free
+      ✔ a first mint of 1 is free with value 0; sending BNB for it reverts (45ms)
+      ✔ a first mint of 3 costs exactly 2 x PRICE (1 free + 2 paid)
+      ✔ a second mint is fully paid
+      ✔ free is limited per wallet AND per Agent ID across wallets
       ✔ handle length counts UTF-8 bytes (bytes(handle).length)
-    paid phase
-      ✔ the free phase ends at exactly 1,000 and mintFree closes (7376ms)
-      ✔ needs exact payment
-      ✔ payout receives the BNB in the same tx; the contract holds none
-      ✔ quantity 1-10, 10 per wallet, 10 per Agent ID across wallets
-      ✔ reverts the whole mint if the payout transfer fails
+    after the 1,000 free bulls
+      ✔ free ends at exactly 1,000 (reserve included) and first mints are fully paid (7701ms)
+      ✔ the last free bull goes to one first mint, then free is over (7017ms)
+    payment and limits
+      ✔ wrong value reverts
+      ✔ payout receives every wei in the same tx; the contract holds none
+      ✔ quantity 1-10, 10 per wallet and 10 per Agent ID in total (free + paid)
+      ✔ reverts the whole mint if the payout transfer fails, but a value-0 free mint skips the call
     no function leaks the answer
-      ✔ no view/pure output equals the answer, and the question never contains it (249ms)
+      ✔ no view/pure output equals the answer, and the question never contains it (174ms)
     full mint of all 3,000
       tier totals: 1800 / 600 / 375 / 150 / 75
-      ✔ exact tier totals, sold out, every image matches the JS generator (19568ms)
+      ✔ exact tier totals, sold out, every image matches the JS generator (20330ms)
 
 
-  21 passing (28s)
+  23 passing (36s)
 
