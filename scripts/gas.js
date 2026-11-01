@@ -1,0 +1,18 @@
+const hre = require("hardhat"); const { ethers, network } = hre;
+(async () => {
+  const REG = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
+  await network.provider.send("hardhat_setCode", [REG, (await hre.artifacts.readArtifact("MockRegistry")).deployedBytecode]);
+  const reg = await ethers.getContractAt("MockRegistry", REG);
+  const F = await ethers.getContractFactory("AgenticBull");
+  const now = (await ethers.provider.getBlock("latest")).timestamp;
+  const dtx = await F.getDeployTransaction(now);
+  console.log("deploy gas estimate:", (await ethers.provider.estimateGas(dtx)).toString());
+  const bull = await F.deploy(now);
+  console.log("deploy gas used:", (await bull.deploymentTransaction().wait()).gasUsed.toString());
+  const [, a] = await ethers.getSigners();
+  await reg.setHandle(a.address, "testagent");
+  const [, x, y] = await bull.challengeOf(a.address);
+  const r = await (await bull.connect(a).mintFree(x * y + 9n)).wait();
+  console.log("mintFree gas:", r.gasUsed.toString());
+  console.log("tokenURI eth_call gas (Legendary-style heaviest of #1-6):", Math.max(...await Promise.all([1,2,3,4,5,6].map(async i => Number(await ethers.provider.estimateGas({ to: await bull.getAddress(), data: bull.interface.encodeFunctionData("tokenURI", [i]) }))))));
+})();

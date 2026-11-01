@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Agentic Bull | 3,000 onchain bulls for AI agents with an Agent ID</title>
+<meta name="description" content="Agentic Bull: 3,000 fully on-chain pixel bulls on BNB Chain, mintable only by wallets with a .ai Agent ID. First 1,000 free, then 0.00014 BNB. No admin keys.">
+<meta name="theme-color" content="#07090f">
+<link rel="canonical" href="PASTE_SITE_URL_HERE/">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,__FAVICON__">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Agentic Bull">
+<meta property="og:title" content="Agentic Bull | 3,000 onchain bulls for AI agents">
+<meta property="og:description" content="Agent ID holders only. First 1,000 free, then 0.00014 BNB. 100% on-chain art on BNB Chain.">
+<meta property="og:url" content="PASTE_SITE_URL_HERE/">
+<meta property="og:image" content="PASTE_SITE_URL_HERE/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Agentic Bull | 3,000 onchain bulls for AI agents">
+<meta name="twitter:description" content="Agent ID holders only. First 1,000 free, then 0.00014 BNB. 100% on-chain art on BNB Chain.">
+<meta name="twitter:image" content="PASTE_SITE_URL_HERE/og.png">
+<link rel="alternate" type="text/plain" title="LLM instructions" href="/llms.txt">
+<link rel="alternate" type="application/json" title="Mint instructions" href="/mint.json">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebSite","name":"Agentic Bull","url":"PASTE_SITE_URL_HERE/","inLanguage":["en","zh-CN","vi","ja","ko","th","id"],"description":"3,000 fully on-chain pixel bulls on BNB Chain for AI agents with a .ai Agent ID."},
+{"@type":"CreativeWork","name":"Agentic Bull NFT collection","url":"PASTE_SITE_URL_HERE/","description":"ERC-721 collection of 3,000 on-chain SVG bulls on BNB Chain (chain ID 56). Mint requires a SPACE ID .ai Agent ID. 1,000 free, then 0.00014 BNB.","identifier":"PASTE_ADDRESS_HERE","offers":{"@type":"Offer","price":"0.00014","priceCurrency":"BNB"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is an Agent ID?","acceptedAnswer":{"@type":"Answer","text":"A soulbound .ai name that SPACE ID issues to Binance Agentic Wallets on BNB Chain. Agentic Bull reads it from the registry 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F."}},
+{"@type":"Question","name":"Is it free?","acceptedAnswer":{"@type":"Answer","text":"The first 1,000 are free, 1 per wallet and 1 per Agent ID. After that each costs exactly 0.00014 BNB, up to 10 per wallet and 10 per Agent ID."}},
+{"@type":"Question","name":"How does an AI agent mint?","acceptedAnswer":{"@type":"Answer","text":"Call challengeOf(wallet), answer a*b + the length of the Agent ID without .ai, then call mintFree(answer) in the free phase or mint(quantity, answer) with 140000000000000 wei per bull. Full spec at /llms.txt."}}]}
+]}
+</script>
+<style>
+:root{--bg:#07090f;--card:#0e1220;--card2:#131a2c;--line:#222b44;--txt:#e9ecf5;--mut:#8f99b5;--green:#16c784;--neon:#39ff14;--gold:#ffd700;--pink:#ff2bd6;--red:#ff3b6b;--r:16px}
+[hidden]{display:none!important}*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans","Noto Sans Thai","Noto Sans KR",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--green)}
+.px{font-family:"Press Start 2P",Inter,system-ui,sans-serif;letter-spacing:.5px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+header{position:sticky;top:0;z-index:20;background:rgba(7,9,15,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.logo{display:flex;align-items:center;gap:10px;font-size:12px;color:#fff;text-decoration:none;white-space:nowrap}
+.logo svg{width:32px;height:32px;border-radius:7px;display:block}
+.sp{flex:1}
+select,button,input{font:inherit}
+.lang{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:7px 8px;max-width:130px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 18px;font-weight:800;cursor:pointer;background:var(--green);color:#03140c;text-decoration:none;transition:transform .12s,filter .12s}
+.btn:hover{filter:brightness(1.1)}.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.btn.sm{padding:8px 12px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.hero{position:relative;padding:44px 0 30px;overflow:hidden}
+#candles{position:absolute;inset:0;width:100%;height:100%;opacity:.22;pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
+h1{font-size:30px;line-height:1.35;margin:0 0 14px;text-shadow:0 0 24px rgba(22,199,132,.35)}
+h1 b{color:var(--green)}
+.tag{font-size:19px;font-weight:800;margin:0 0 8px}
+.sub{color:var(--mut);margin:0 0 16px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.pill{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:12.5px;color:#cfd6ea}
+.heroart{position:relative;aspect-ratio:1;border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 0 0 1px rgba(255,215,0,.15),0 20px 60px rgba(22,199,132,.18)}
+.heroart svg{width:100%;height:100%;display:block}
+.card{background:linear-gradient(180deg,var(--card),#0b0f1b);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+.stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat .v{font-size:13px;color:#fff;white-space:nowrap}.stat .k{font-size:12px;color:var(--mut)}
+.bar{height:10px;background:#1a2238;border-radius:99px;overflow:hidden;margin:12px 0 4px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--neon));transition:width .6s}
+.badge{display:inline-block;padding:6px 10px;border-radius:8px;font-size:10px;background:var(--green);color:#03140c}
+.badge.paid{background:var(--gold)}.badge.sold{background:var(--red);color:#fff}
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.cd div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center}
+.cd b{display:block;font-family:"Press Start 2P",monospace;font-size:18px;color:var(--gold)}
+.cd span{font-size:11px;color:var(--mut)}
+.small{font-size:12.5px;color:var(--mut)}
+section{padding:26px 0}
+h2{font-size:15px;margin:0 0 6px;color:#fff}
+.hint{color:var(--mut);margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+pre.prompt{white-space:pre-wrap;word-break:break-word;background:#05070c;border:1px dashed #2c3a5e;border-radius:12px;padding:14px;margin:0 0 12px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8ffe9;max-height:260px;overflow:auto}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input.addr,input.num{flex:1;min-width:0;background:#05070c;border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+input.num{max-width:110px;flex:0 0 110px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:12px;font-size:13.5px}
+.kv dt{color:var(--mut)}.kv dd{margin:0;word-break:break-word}
+.msg{margin-top:10px;font-size:13.5px;min-height:1em}
+.msg.err{color:#ff8aa5}.msg.ok{color:var(--green)}
+.bulls{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.bull{background:var(--card2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.bull .img{aspect-ratio:1}.bull .img svg,.bull .img img{width:100%;height:100%;display:block}
+.bull .meta{padding:8px 10px;font-size:12px;display:flex;justify-content:space-between;gap:6px}
+.t0{color:#cfd6ea}.t1{color:var(--green)}.t2{color:var(--neon)}.t3{color:var(--pink)}.t4{color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--mut);font-weight:600}
+.tw{overflow-x:auto}
+.trust{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.trust div{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:13.5px}
+.trust div:before{content:"✓ ";color:var(--green);font-weight:800}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+summary{cursor:pointer;font-weight:700}details p{color:#c4cbe0;margin:10px 0 2px}
+footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--mut);font-size:12.5px}
+footer a{color:var(--mut)}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--green);color:#03140c;padding:9px 14px;border-radius:10px;font-weight:800;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+@media (max-width:820px){.hero .wrap,.grid2{grid-template-columns:1fr}.heroart{max-width:340px;margin:0 auto;width:100%}h1{font-size:22px}.trust{grid-template-columns:1fr}.logo .lt{display:none}}
+@media (max-width:380px){.cd b{font-size:15px}.stats .v{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a class="logo px" href="#"><span id="logoArt"></span><span class="lt">AGENTIC BULL</span></a>
+  <div class="sp"></div>
+  <select class="lang" id="lang" aria-label="Language"></select>
+  <button class="btn sm" id="hdrConnect" data-i="connect">Connect wallet</button>
+</div></header>
+
+<div class="hero">
+  <svg id="candles" preserveAspectRatio="none" viewBox="0 0 600 300" aria-hidden="true"></svg>
+  <div class="wrap">
+    <div>
+      <h1 class="px">AGENTIC <b>BULL</b></h1>
+      <p class="tag" data-i="tagline"></p>
+      <p class="sub" data-i="heroSub"></p>
+      <div class="pills"><span class="pill" data-i="pill1"></span><span class="pill" data-i="pill2"></span><span class="pill" data-i="pill3"></span></div>
+      <div class="card">
+        <div class="row" style="align-items:center;justify-content:space-between">
+          <span id="cdTitle" data-i="opensIn" style="font-weight:700"></span>
+          <span class="badge px" id="phase" data-i="badgeFree"></span>
+        </div>
+        <div class="cd" id="cd"><div><b id="cdD">--</b><span data-i="d"></span></div><div><b id="cdH">--</b><span data-i="h"></span></div><div><b id="cdM">--</b><span data-i="m"></span></div><div><b id="cdS">--</b><span data-i="s"></span></div></div>
+        <div class="bar"><i id="bar"></i></div>
+        <div class="stats">
+          <div class="stat"><div class="v px" id="stTotal">-- / 3000</div><div class="k" data-i="minted"></div></div>
+          <div class="stat"><div class="v px" id="stFree">--</div><div class="k" data-i="freeLeft"></div></div>
+          <div class="stat"><div class="v px">0.00014</div><div class="k">BNB</div></div>
+        </div>
+        <div class="small" id="rpcState" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="heroart" id="heroArt"></div>
+  </div>
+</div>
+
+<main class="wrap">
+<section id="prompt">
+  <div class="card">
+    <h2 class="px" data-i="promptTitle"></h2>
+    <p class="hint" data-i="promptHint"></p>
+    <pre class="prompt" id="promptText"></pre>
+    <button class="btn" id="copyPrompt" data-i="copy"></button>
+  </div>
+</section>
+
+<section class="grid2">
+  <div class="card" id="checker">
+    <h2 class="px" data-i="checkerTitle"></h2>
+    <p class="hint" data-i="checkerHint"></p>
+    <div class="row"><input class="addr" id="chkAddr" autocomplete="off" spellcheck="false"><button class="btn" id="chkBtn" data-i="check"></button></div>
+    <dl class="kv" id="chkOut" hidden>
+      <dt data-i="agentId"></dt><dd id="chkId"></dd>
+      <dt data-i="challenge"></dt><dd id="chkQ"></dd>
+      <dt data-i="canMint"></dt><dd id="chkCan"></dd>
+      <dt data-i="mintedSoFar"></dt><dd id="chkMinted"></dd>
+    </dl>
+    <div class="msg" id="chkMsg"></div>
+  </div>
+
+  <div class="card" id="mint">
+    <h2 class="px" data-i="mintTitle"></h2>
+    <p class="hint" data-i="mintHint"></p>
+    <div class="row" id="walletRow"><button class="btn" id="connectBtn" data-i="connect"></button><button class="btn ghost" id="switchBtn" data-i="switchNet" hidden></button></div>
+    <div id="mintBox" hidden>
+      <dl class="kv">
+        <dt data-i="connected"></dt><dd class="mono" id="mAddr"></dd>
+        <dt data-i="agentId"></dt><dd id="mId"></dd>
+        <dt data-i="challenge"></dt><dd id="mQ"></dd>
+      </dl>
+      <p class="small" id="mPhase" style="margin:12px 0 8px"></p>
+      <div class="row" style="align-items:center">
+        <label class="small" data-i="answer" for="mAns"></label>
+        <input class="num" id="mAns" inputmode="numeric">
+        <label class="small qtyw" data-i="qty" for="mQty"></label>
+        <input class="num qtyw" id="mQty" type="number" min="1" max="10" value="1" inputmode="numeric">
+      </div>
+      <p class="small" id="mSolved"></p>
+      <button class="btn" id="mintBtn" style="width:100%"></button>
+    </div>
+    <div class="msg" id="mMsg"></div>
+  </div>
+</section>
+
+<section id="mine">
+  <h2 class="px" data-i="myBulls"></h2>
+  <p class="hint" id="mineHint" data-i="connectFirst"></p>
+  <div class="bulls" id="mineGrid"></div>
+</section>
+
+<section id="rarity">
+  <h2 class="px" data-i="rarity"></h2>
+  <p class="hint" data-i="rarityHint"></p>
+  <div class="card tw"><table>
+    <thead><tr><th data-i="tier"></th><th data-i="supply"></th><th data-i="share"></th><th data-i="left"></th><th data-i="look"></th></tr></thead>
+    <tbody id="rarityBody"></tbody>
+  </table></div>
+</section>
+
+<section id="gallery">
+  <h2 class="px" data-i="gallery"></h2>
+  <p class="hint" data-i="galleryHint"></p>
+  <div class="bulls" id="sampleGrid"></div>
+</section>
+
+<section id="trust">
+  <h2 class="px" data-i="trust"></h2>
+  <div class="card">
+    <div class="small" data-i="contract"></div>
+    <div class="row" style="align-items:center;margin:6px 0 14px"><span class="mono" id="caText"></span><button class="btn ghost sm" id="copyCa" data-i="copyAddr"></button></div>
+    <div class="row" style="margin-bottom:14px"><a class="btn ghost sm" id="lnSourcify" target="_blank" rel="noopener" data-i="sourcify"></a><a class="btn ghost sm" id="lnScan" target="_blank" rel="noopener" data-i="bscscan"></a></div>
+    <div class="trust"><div data-i="immutable"></div><div data-i="onchain"></div><div data-i="royalty"></div><div data-i="forward"></div></div>
+  </div>
+</section>
+
+<section id="trade">
+  <h2 class="px" data-i="trade"></h2>
+  <div class="row"><a class="btn ghost" id="lnElement" target="_blank" rel="noopener">Element</a><a class="btn ghost" id="lnOkx" target="_blank" rel="noopener">OKX NFT</a></div>
+</section>
+
+<section id="faq">
+  <h2 class="px" data-i="faq"></h2>
+  <details open><summary data-i="q1"></summary><p data-i="a1"></p></details>
+  <details><summary data-i="q2"></summary><p data-i="a2"></p></details>
+  <details><summary data-i="q3"></summary><p data-i="a3"></p></details>
+  <details><summary data-i="q4"></summary><p data-i="a4"></p></details>
+  <details><summary data-i="q5"></summary><p data-i="a5"></p></details>
+  <details><summary data-i="q6"></summary><p data-i="a6"></p></details>
+</section>
+</main>
+
+<footer><div class="wrap">
+  <div class="px" style="font-size:10px;color:#fff;margin-bottom:10px">AGENTIC BULL · BNB CHAIN</div>
+  <div id="ftCa" class="mono" style="margin-bottom:8px"></div>
+  <div style="margin-bottom:8px"><a href="/llms.txt">llms.txt</a> · <a href="/mint.json">mint.json</a> · <a href="/.well-known/agent.json">agent.json</a> · <a href="/abi.json">abi.json</a></div>
+  <div data-i="footer"></div>
+</div></footer>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js" crossorigin="anonymous"></script>
+<script>if(!window.ethers){document.write('<script src="https://unpkg.com/ethers@6.13.4/dist/ethers.umd.min.js"><\/script>')}</script>
+<script>
+/*__BULL_ART__*/
+/*__I18N__*/
+var SAMPLES = /*__SAMPLES__*/;
+</script>
+<script>
+(function () {
+"use strict";
+// ======== CONFIG: replace the placeholders after deploying (see docs/DEPLOY_GUIDE.md) ========
+var CONFIG = {
+  address: "PASTE_ADDRESS_HERE",
+  site: "PASTE_SITE_URL_HERE",
+  element: "ELEMENT_LINK_HERE",
+  okx: "OKX_LINK_HERE",
+  rpcs: ["https://bsc-dataseed.binance.org", "https://bsc-rpc.publicnode.com"],
+  mintStartFallback: 1793883600,
+  chainId: 56
+};
+var PRICE = 140000000000000n, MAX = 3000, FREE = 1000;
+var TIERS = [1800, 600, 375, 150, 75];
+var MULTICALL = "0xcA11bde05977b3631167028862bE2a173976CA11";
+var ABI = [
+  "function totalMinted() view returns (uint256)", "function freeMinted() view returns (uint256)", "function isFreePhase() view returns (bool)",
+  "function MINT_START() view returns (uint256)", "function tierRemaining() view returns (uint256[5])", "function agentIdOf(address) view returns (string)",
+  "function challengeOf(address) view returns (string question, uint256 a, uint256 b)", "function mintableBy(address) view returns (uint256)",
+  "function mintedBy(address) view returns (uint256)", "function balanceOf(address) view returns (uint256)", "function ownerOf(uint256) view returns (address)",
+  "function tokenURI(uint256) view returns (string)", "function mintFree(uint256 answer)", "function mint(uint256 qty, uint256 answer) payable",
+  "event Minted(address indexed minter, string agentId, uint256 firstId, uint256 qty, bool free)"
+];
+var MC_ABI = ["function aggregate3((address target,bool allowFailure,bytes callData)[] calls) payable returns ((bool success,bytes returnData)[])"];
+var ERRS = [["Mint not started","e_notStarted"],["EOA only","e_eoa"],["Agent ID required","e_noAgent"],["Wrong answer","e_wrongAnswer"],["Free mint over","e_freeOver"],
+  ["Free limit: wallet","e_freeWallet"],["Free limit: Agent ID","e_freeAgent"],["Free phase active","e_freeActive"],["Bad quantity","e_badQty"],["Sold out","e_soldOut"],
+  ["Wallet limit","e_walletLimit"],["Agent ID limit","e_agentLimit"],["Wrong payment","e_wrongPayment"],["Payout failed","e_payout"]];
+
+var $ = function (id) { return document.getElementById(id); };
+var deployed = /^0x[0-9a-fA-F]{40}$/.test(CONFIG.address);
+var siteUrl = /^https?:\/\//.test(CONFIG.site) ? CONFIG.site.replace(/\/$/, "") : location.origin;
+var lang = "en", T = I18N.en, state = { total: null, free: null, isFree: true, start: CONFIG.mintStartFallback, left: null, rpcOk: null };
+var wallet = { eip: null, provider: null, signer: null, addr: null, chainOk: false, handle: "", a: 0, b: 0 };
+
+function t(k, v) { var s = (T[k] != null ? T[k] : I18N.en[k]) || k; if (v) for (var x in v) s = s.split("{" + x + "}").join(v[x]); return s; }
+function fmt(n) { return Number(n).toLocaleString(lang === "zh" ? "zh-CN" : lang); }
+function toast(m) { var e = $("toast"); e.textContent = m; e.classList.add("on"); setTimeout(function () { e.classList.remove("on"); }, 1400); }
+function copy(text) { (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).catch(function () { var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); }).finally(function () { toast(t("copied")); }); }
+function utf8len(s) { return new TextEncoder().encode(s).length; }
+
+// ---------- language ----------
+var LANGS = ["en", "zh", "vi", "ja", "ko", "th", "id"], HTML_LANG = { en: "en", zh: "zh-CN", vi: "vi", ja: "ja", ko: "ko", th: "th", id: "id" };
+function pickLang() {
+  var q = new URLSearchParams(location.search).get("lang"); if (q && I18N[q]) return q;
+  try { var s = localStorage.getItem("ab_lang"); if (s && I18N[s]) return s; } catch (e) {}
+  var nav = (navigator.languages || [navigator.language || "en"]);
+  for (var i = 0; i < nav.length; i++) { var c = String(nav[i]).toLowerCase().slice(0, 2); if (c === "ms") c = "id"; if (I18N[c]) return c; }
+  return "en";
+}
+function setLang(l) {
+  lang = l; T = I18N[l]; document.documentElement.lang = HTML_LANG[l];
+  try { localStorage.setItem("ab_lang", l); } catch (e) {}
+  document.querySelectorAll("[data-i]").forEach(function (el) { el.textContent = t(el.getAttribute("data-i")); });
+  $("chkAddr").placeholder = t("addrPh");
+  $("promptText").textContent = t("prompt", { addr: CONFIG.address, site: siteUrl });
+  renderRarity(); renderStats(); renderSamples(); tick();
+  if (wallet.addr) refreshWallet();
+}
+
+// ---------- art ----------
+var uid = 0;
+function bullSvg(seed, tier) { var n = "b" + (++uid); return BULL_ART.svg(BigInt(seed), tier).replace(/id="p"/g, 'id="' + n + '"').replace(/url\(#p\)/g, "url(#" + n + ")"); }
+function card(svg, label, tier) {
+  var d = document.createElement("div"); d.className = "bull";
+  d.innerHTML = '<div class="img"></div><div class="meta"><span>' + label + '</span><span class="t' + tier + '">' + t("t" + tier) + "</span></div>";
+  d.firstChild.innerHTML = svg; return d;
+}
+function renderSamples() {
+  var g = $("sampleGrid"); g.innerHTML = "";
+  SAMPLES.forEach(function (s, i) { g.appendChild(card(bullSvg(s.s, s.t), "#" + String(i + 1).padStart(2, "0"), s.t)); });
+}
+function renderRarity() {
+  var looks = ["l0", "l1", "l2", "l3", "l4"], b = $("rarityBody"); b.innerHTML = "";
+  TIERS.forEach(function (n, i) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = '<td class="t' + i + '" style="font-weight:800">' + t("t" + i) + "</td><td>" + fmt(n) + "</td><td>" + (n / 30).toFixed(1).replace(/\.0$/, "") + "%</td><td>" +
+      (state.left ? fmt(state.left[i]) : "--") + "</td><td>" + t(looks[i]) + "</td>";
+    b.appendChild(tr);
+  });
+}
+function candles() {
+  var svg = $("candles"), out = "", y = 220, x;
+  for (var i = 0; i < 40; i++) {
+    x = i * 15 + 4; var up = Math.random() < .72, h = 10 + Math.random() * 34, o = y, c = up ? y - h : y + h * .6;
+    var top = Math.min(o, c), bh = Math.abs(o - c), col = up ? "#16c784" : "#ff3b6b";
+    out += '<line x1="' + (x + 4) + '" x2="' + (x + 4) + '" y1="' + (top - 8) + '" y2="' + (top + bh + 8) + '" stroke="' + col + '" stroke-width="1"/>' +
+      '<rect x="' + x + '" y="' + top + '" width="8" height="' + Math.max(bh, 2) + '" fill="' + col + '"><animate attributeName="opacity" values="1;.55;1" dur="' + (2 + Math.random() * 3).toFixed(1) + 's" repeatCount="indefinite"/></rect>';
+    y = Math.max(40, Math.min(270, c));
+  }
+  svg.innerHTML = out;
+}
+
+// ---------- chain reads ----------
+var rpcIdx = 0, readProv = null, readC = null;
+function makeRead() {
+  readProv = new ethers.JsonRpcProvider(CONFIG.rpcs[rpcIdx], CONFIG.chainId, { staticNetwork: ethers.Network.from(CONFIG.chainId) });
+  readC = deployed ? new ethers.Contract(CONFIG.address, ABI, readProv) : null;
+}
+async function withRpc(fn) {
+  for (var tries = 0; tries < CONFIG.rpcs.length; tries++) {
+    try { return await fn(readC, readProv); } catch (e) {
+      if (e && (e.code === "CALL_EXCEPTION" || e.code === "BAD_DATA")) throw e;
+      rpcIdx = (rpcIdx + 1) % CONFIG.rpcs.length; makeRead();
+    }
+  }
+  throw new Error("rpc");
+}
+var gotStart = false;
+async function poll() {
+  if (!deployed) { $("rpcState").textContent = t("notDeployed"); return; }
+  try {
+    var r = await withRpc(function (c) {
+      return Promise.all([c.totalMinted(), c.freeMinted(), c.isFreePhase(), c.tierRemaining(), gotStart ? null : c.MINT_START()]);
+    });
+    state.total = Number(r[0]); state.free = Number(r[1]); state.isFree = r[2]; state.left = r[3].map(Number);
+    if (r[4] != null) { state.start = Number(r[4]); gotStart = true; }
+    state.rpcOk = true; $("rpcState").textContent = "";
+  } catch (e) { state.rpcOk = false; $("rpcState").textContent = t("rpcError"); }
+  renderStats(); renderRarity(); tick();
+}
+function renderStats() {
+  var tot = state.total, fr = state.free;
+  $("stTotal").textContent = (tot == null ? "--" : fmt(tot)) + " / " + fmt(MAX);
+  $("stFree").textContent = fr == null ? "--" : fmt(FREE - fr);
+  $("bar").style.width = tot == null ? "0" : (tot / MAX * 100).toFixed(2) + "%";
+  var p = $("phase");
+  if (tot != null && tot >= MAX) { p.className = "badge px sold"; p.textContent = t("badgeSold"); }
+  else if (!state.isFree) { p.className = "badge px paid"; p.textContent = t("badgePaid"); }
+  else { p.className = "badge px"; p.textContent = t("badgeFree"); }
+}
+function tick() {
+  var now = Math.floor(Date.now() / 1000), d = state.start - now, cd = $("cd");
+  if (d <= 0) { cd.hidden = true; $("cdTitle").textContent = t("live"); return; }
+  cd.hidden = false; $("cdTitle").textContent = t("opensIn");
+  var pad = function (n) { return String(n).padStart(2, "0"); };
+  $("cdD").textContent = pad(Math.floor(d / 86400)); $("cdH").textContent = pad(Math.floor(d % 86400 / 3600));
+  $("cdM").textContent = pad(Math.floor(d % 3600 / 60)); $("cdS").textContent = pad(d % 60);
+}
+
+// ---------- errors ----------
+function errText(e) {
+  var raw = [e && e.reason, e && e.shortMessage, e && e.info && e.info.error && e.info.error.message, e && e.error && e.error.message, e && e.message].filter(Boolean).join(" | ");
+  for (var i = 0; i < ERRS.length; i++) if (raw.indexOf(ERRS[i][0]) >= 0) return t(ERRS[i][1]);
+  if ((e && (e.code === "ACTION_REJECTED" || e.code === 4001)) || /user (rejected|denied)|rejected the request/i.test(raw)) return t("e_rejected");
+  if (/insufficient funds/i.test(raw)) return t("e_funds");
+  return t("e_generic", { msg: (e && (e.shortMessage || e.reason)) || String(raw).slice(0, 160) });
+}
+
+// ---------- checker ----------
+async function check() {
+  var a = $("chkAddr").value.trim(), m = $("chkMsg"); m.className = "msg"; m.textContent = ""; $("chkOut").hidden = true;
+  if (!ethers.isAddress(a)) { m.className = "msg err"; m.textContent = t("e_badAddr"); return; }
+  if (!deployed) { m.textContent = t("notDeployed"); return; }
+  m.textContent = t("loading");
+  try {
+    var r = await withRpc(function (c) { return Promise.all([c.agentIdOf(a), c.challengeOf(a), c.mintableBy(a), c.mintedBy(a)]); });
+    m.textContent = "";
+    $("chkId").textContent = r[0] ? r[0] + ".ai" : t("noAgent");
+    $("chkQ").textContent = t("question", { a: r[1][1], b: r[1][2] });
+    $("chkCan").textContent = fmt(r[2]); $("chkMinted").textContent = fmt(r[3]); $("chkOut").hidden = false;
+  } catch (e) { m.className = "msg err"; m.textContent = errText(e); }
+}
+
+// ---------- wallet ----------
+var injected = [];
+window.addEventListener("eip6963:announceProvider", function (ev) { if (ev.detail && ev.detail.provider) injected.push(ev.detail); });
+window.dispatchEvent(new Event("eip6963:requestProvider"));
+function getEip() { if (injected.length) return injected[0].provider; return window.ethereum || window.BinanceChain || null; }
+async function connect() {
+  var m = $("mMsg"); m.className = "msg"; m.textContent = "";
+  var eip = getEip();
+  if (!eip) { m.className = "msg err"; m.textContent = t("e_noWallet"); location.hash = "mint"; return; }
+  try {
+    wallet.eip = eip; var accs = await eip.request({ method: "eth_requestAccounts" }); wallet.addr = ethers.getAddress(accs[0]);
+    if (!wallet.bound) { wallet.bound = true; if (eip.on) { eip.on("accountsChanged", function (a) { wallet.addr = a && a[0] ? ethers.getAddress(a[0]) : null; refreshWallet(); }); eip.on("chainChanged", function () { refreshWallet(); }); } }
+    await refreshWallet(); if (!wallet.chainOk) await switchNet();
+  } catch (e) { m.className = "msg err"; m.textContent = errText(e); }
+}
+async function switchNet() {
+  try { await wallet.eip.request({ method: "wallet_switchEthereumChain", params: [{ chainId: "0x38" }] }); }
+  catch (e) {
+    if (e && (e.code === 4902 || /unrecognized|not added/i.test(e.message || ""))) {
+      await wallet.eip.request({ method: "wallet_addEthereumChain", params: [{ chainId: "0x38", chainName: "BNB Smart Chain", nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 }, rpcUrls: CONFIG.rpcs, blockExplorerUrls: ["https://bscscan.com"] }] });
+    } else throw e;
+  }
+  await refreshWallet();
+}
+async function refreshWallet() {
+  if (!wallet.eip || !wallet.addr) { $("mintBox").hidden = true; $("connectBtn").hidden = false; $("hdrConnect").textContent = t("connect"); return; }
+  var short = wallet.addr.slice(0, 6) + "…" + wallet.addr.slice(-4);
+  $("hdrConnect").textContent = short; $("connectBtn").hidden = true;
+  var cid = await wallet.eip.request({ method: "eth_chainId" });
+  wallet.chainOk = parseInt(cid, 16) === CONFIG.chainId;
+  $("switchBtn").hidden = wallet.chainOk;
+  var m = $("mMsg");
+  if (!wallet.chainOk) { $("mintBox").hidden = true; m.className = "msg err"; m.textContent = t("wrongChain"); return; }
+  if (m.textContent === t("wrongChain")) { m.textContent = ""; m.className = "msg"; }
+  wallet.provider = new ethers.BrowserProvider(wallet.eip, "any");
+  $("mintBox").hidden = false; $("mAddr").textContent = short;
+  if (!deployed) { m.textContent = t("notDeployed"); $("mintBtn").disabled = true; return; }
+  try {
+    var r = await withRpc(function (c) { return Promise.all([c.agentIdOf(wallet.addr), c.challengeOf(wallet.addr), c.isFreePhase()]); });
+    wallet.handle = r[0]; wallet.a = Number(r[1][1]); wallet.b = Number(r[1][2]); state.isFree = r[2];
+    var n = utf8len(wallet.handle), ans = wallet.a * wallet.b + n;
+    $("mId").textContent = wallet.handle ? wallet.handle + ".ai" : t("noAgent");
+    $("mQ").textContent = t("question", { a: wallet.a, b: wallet.b });
+    $("mAns").value = ans; $("mSolved").textContent = wallet.handle ? t("solved", { a: wallet.a, b: wallet.b, n: n, ans: ans }) : "";
+    if (!wallet.handle) { m.className = "msg err"; m.textContent = t("e_noAgent"); }
+  } catch (e) { m.className = "msg err"; m.textContent = errText(e); }
+  updateMintBtn(); loadMine();
+}
+function updateMintBtn() {
+  var q = Math.max(1, Math.min(10, parseInt($("mQty").value || "1", 10) || 1));
+  document.querySelectorAll(".qtyw").forEach(function (e) { e.style.display = state.isFree ? "none" : ""; });
+  $("mPhase").textContent = state.isFree ? t("phaseFree") : t("phasePaid");
+  $("mintBtn").textContent = state.isFree ? t("mintFree") : t("mintPaid", { p: ethers.formatEther(PRICE * BigInt(q)) });
+  $("mintBtn").disabled = !wallet.handle;
+}
+async function doMint() {
+  var m = $("mMsg"); m.className = "msg"; var btn = $("mintBtn"); btn.disabled = true;
+  try {
+    var ans = BigInt($("mAns").value || "0"), q = BigInt(Math.max(1, Math.min(10, parseInt($("mQty").value || "1", 10) || 1)));
+    var signer = await wallet.provider.getSigner(), c = new ethers.Contract(CONFIG.address, ABI, signer);
+    var free = await withRpc(function (rc) { return rc.isFreePhase(); }); state.isFree = free; updateMintBtn(); btn.disabled = true;
+    // simulate first so the user sees the real reason instead of a failed transaction
+    if (free) await c.mintFree.staticCall(ans); else await c.mint.staticCall(q, ans, { value: PRICE * q });
+    m.textContent = t("confirmWallet");
+    var tx = free ? await c.mintFree(ans) : await c.mint(q, ans, { value: PRICE * q });
+    m.innerHTML = t("pending") + ' <a target="_blank" rel="noopener" href="https://bscscan.com/tx/' + tx.hash + '">' + t("viewTx") + "</a>";
+    var rc = await tx.wait(), ids = [];
+    rc.logs.forEach(function (l) { try { var p = c.interface.parseLog(l); if (p && p.name === "Minted") for (var i = 0n; i < p.args.qty; i++) ids.push("#" + (p.args.firstId + i)); } catch (e) {} });
+    m.className = "msg ok"; m.innerHTML = t("success", { ids: ids.join(", ") || "?" }) + ' <a target="_blank" rel="noopener" href="https://bscscan.com/tx/' + tx.hash + '">' + t("viewTx") + "</a>";
+    poll(); loadMine();
+  } catch (e) { m.className = "msg err"; m.textContent = errText(e); }
+  updateMintBtn();
+}
+
+// ---------- my bulls (no enumerable: scan ownerOf with Multicall3) ----------
+var mineBusy = false;
+async function loadMine() {
+  if (!deployed || !wallet.addr || mineBusy) return; mineBusy = true;
+  var g = $("mineGrid"), h = $("mineHint"); h.removeAttribute("data-i"); h.textContent = t("loading");
+  try {
+    var owner = wallet.addr, res = await withRpc(function (c, p) { return Promise.all([c.balanceOf(owner), c.totalMinted()]); });
+    var bal = Number(res[0]), tot = Number(res[1]), ids = [];
+    if (bal > 0) {
+      var iface = new ethers.Interface(ABI);
+      for (var start = 1; start <= tot && ids.length < bal; start += 400) {
+        var calls = [];
+        for (var id = start; id < start + 400 && id <= tot; id++) calls.push({ target: CONFIG.address, allowFailure: true, callData: iface.encodeFunctionData("ownerOf", [id]) });
+        var out = await withRpc(function (c, p) { return new ethers.Contract(MULTICALL, MC_ABI, p).aggregate3.staticCall(calls); });
+        out.forEach(function (o, k) { if (o.success && ethers.getAddress(ethers.dataSlice(o.returnData, 12)) === owner) ids.push(start + k); });
+      }
+    }
+    g.innerHTML = "";
+    if (!ids.length) { h.textContent = t("myBullsEmpty"); mineBusy = false; return; }
+    h.textContent = "";
+    for (var i = 0; i < ids.length && i < 60; i++) {
+      var uri = await withRpc(function (c) { return c.tokenURI(ids[i]); });
+      var j = JSON.parse(atob(uri.split(",")[1])), tierAttr = (j.attributes || []).find(function (a) { return a.trait_type === "Tier"; });
+      var ti = Math.max(0, BULL_ART.NAMES.TIER.indexOf(tierAttr ? tierAttr.value : "Common"));
+      g.appendChild(card('<img alt="' + j.name + '" src="' + j.image + '">', "#" + ids[i], ti));
+    }
+  } catch (e) { h.textContent = errText(e); }
+  mineBusy = false;
+}
+
+// ---------- links ----------
+function links() {
+  var ca = deployed ? CONFIG.address : t("notDeployed");
+  $("caText").textContent = ca; $("ftCa").textContent = deployed ? CONFIG.address : "";
+  $("copyCa").disabled = !deployed;
+  var sf = $("lnSourcify"), sc = $("lnScan");
+  if (deployed) { sf.href = "https://repo.sourcify.dev/" + CONFIG.chainId + "/" + CONFIG.address; sc.href = "https://bscscan.com/address/" + CONFIG.address + "#code"; }
+  else { sf.removeAttribute("href"); sc.removeAttribute("href"); sf.style.opacity = sc.style.opacity = ".45"; }
+  [["lnElement", CONFIG.element, "Element"], ["lnOkx", CONFIG.okx, "OKX NFT"]].forEach(function (x) {
+    var a = $(x[0]), ok = /^https?:\/\//.test(x[1]);
+    if (ok) { a.href = x[1]; a.textContent = x[2]; } else { a.removeAttribute("href"); a.style.opacity = ".5"; a.style.cursor = "default"; a.innerHTML = x[2] + ' <span class="small">· <span data-i="soon">' + t("soon") + "</span></span>"; }
+  });
+}
+
+// ---------- boot ----------
+function boot() {
+  var sel = $("lang"); LANGS.forEach(function (l) { var o = document.createElement("option"); o.value = l; o.textContent = I18N[l].langName; sel.appendChild(o); });
+  lang = pickLang(); sel.value = lang; sel.onchange = function () { setLang(sel.value); };
+  $("logoArt").innerHTML = bullSvg(SAMPLES[SAMPLES.length - 1].s, SAMPLES[SAMPLES.length - 1].t);
+  $("heroArt").innerHTML = bullSvg(SAMPLES[SAMPLES.length - 1].s, SAMPLES[SAMPLES.length - 1].t);
+  candles(); links();
+  $("copyPrompt").onclick = function () { copy($("promptText").textContent); };
+  $("copyCa").onclick = function () { if (deployed) copy(CONFIG.address); };
+  $("chkBtn").onclick = check; $("chkAddr").onkeydown = function (e) { if (e.key === "Enter") check(); };
+  $("connectBtn").onclick = connect; $("hdrConnect").onclick = function () { if (!wallet.addr) connect(); else location.hash = "mint"; };
+  $("switchBtn").onclick = function () { switchNet().catch(function (e) { $("mMsg").className = "msg err"; $("mMsg").textContent = errText(e); }); };
+  $("mQty").oninput = updateMintBtn; $("mintBtn").onclick = doMint;
+  setLang(lang);
+  if (window.ethers) { makeRead(); poll(); setInterval(poll, 15000); } else $("rpcState").textContent = t("rpcError");
+  setInterval(tick, 1000);
+  if (getEip() && getEip().request) getEip().request({ method: "eth_accounts" }).then(function (a) { if (a && a[0]) connect(); }).catch(function () {});
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+</script>
+</body>
+</html>

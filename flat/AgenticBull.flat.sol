@@ -1,0 +1,2088 @@
+// Flattened AgenticBull.sol + OpenZeppelin Contracts 5.0.2 (MIT). Paste into Remix as one file.
+// Compile: 0.8.24, optimizer ON 200 runs, viaIR ON, EVM cancun. BEFORE compiling, replace the site URL placeholder in contractURI (search for external_link) with your https:// site URL, no trailing slash.
+// Sources flattened with hardhat v2.29.1 https://hardhat.org
+
+// SPDX-License-Identifier: MIT
+
+// File @openzeppelin/contracts/utils/introspection/IERC165.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/IERC165.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+
+// File @openzeppelin/contracts/interfaces/IERC2981.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/IERC2981.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Interface for the NFT Royalty Standard.
+ *
+ * A standardized way to retrieve royalty payment information for non-fungible tokens (NFTs) to enable universal
+ * support for royalty payments across all NFT marketplaces and ecosystem participants.
+ */
+interface IERC2981 is IERC165 {
+    /**
+     * @dev Returns how much royalty is owed and to whom, based on a sale price that may be denominated in any unit of
+     * exchange. The royalty amount is denominated and should be paid in that same unit of exchange.
+     */
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
+}
+
+
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/ERC165.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * for the additional interface id that will be supported. For example:
+ *
+ * ```solidity
+ * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+ *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ * }
+ * ```
+ */
+abstract contract ERC165 is IERC165 {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool) {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+
+// File @openzeppelin/contracts/token/common/ERC2981.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (token/common/ERC2981.sol)
+
+pragma solidity ^0.8.20;
+
+
+/**
+ * @dev Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment information.
+ *
+ * Royalty information can be specified globally for all token ids via {_setDefaultRoyalty}, and/or individually for
+ * specific token ids via {_setTokenRoyalty}. The latter takes precedence over the first.
+ *
+ * Royalty is specified as a fraction of sale price. {_feeDenominator} is overridable but defaults to 10000, meaning the
+ * fee is specified in basis points by default.
+ *
+ * IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its payment. See
+ * https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the EIP. Marketplaces are expected to
+ * voluntarily pay royalties together with sales, but note that this standard is not yet widely supported.
+ */
+abstract contract ERC2981 is IERC2981, ERC165 {
+    struct RoyaltyInfo {
+        address receiver;
+        uint96 royaltyFraction;
+    }
+
+    RoyaltyInfo private _defaultRoyaltyInfo;
+    mapping(uint256 tokenId => RoyaltyInfo) private _tokenRoyaltyInfo;
+
+    /**
+     * @dev The default royalty set is invalid (eg. (numerator / denominator) >= 1).
+     */
+    error ERC2981InvalidDefaultRoyalty(uint256 numerator, uint256 denominator);
+
+    /**
+     * @dev The default royalty receiver is invalid.
+     */
+    error ERC2981InvalidDefaultRoyaltyReceiver(address receiver);
+
+    /**
+     * @dev The royalty set for an specific `tokenId` is invalid (eg. (numerator / denominator) >= 1).
+     */
+    error ERC2981InvalidTokenRoyalty(uint256 tokenId, uint256 numerator, uint256 denominator);
+
+    /**
+     * @dev The royalty receiver for `tokenId` is invalid.
+     */
+    error ERC2981InvalidTokenRoyaltyReceiver(uint256 tokenId, address receiver);
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(IERC165, ERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @inheritdoc IERC2981
+     */
+    function royaltyInfo(uint256 tokenId, uint256 salePrice) public view virtual returns (address, uint256) {
+        RoyaltyInfo memory royalty = _tokenRoyaltyInfo[tokenId];
+
+        if (royalty.receiver == address(0)) {
+            royalty = _defaultRoyaltyInfo;
+        }
+
+        uint256 royaltyAmount = (salePrice * royalty.royaltyFraction) / _feeDenominator();
+
+        return (royalty.receiver, royaltyAmount);
+    }
+
+    /**
+     * @dev The denominator with which to interpret the fee set in {_setTokenRoyalty} and {_setDefaultRoyalty} as a
+     * fraction of the sale price. Defaults to 10000 so fees are expressed in basis points, but may be customized by an
+     * override.
+     */
+    function _feeDenominator() internal pure virtual returns (uint96) {
+        return 10000;
+    }
+
+    /**
+     * @dev Sets the royalty information that all ids in this contract will default to.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setDefaultRoyalty(address receiver, uint96 feeNumerator) internal virtual {
+        uint256 denominator = _feeDenominator();
+        if (feeNumerator > denominator) {
+            // Royalty fee will exceed the sale price
+            revert ERC2981InvalidDefaultRoyalty(feeNumerator, denominator);
+        }
+        if (receiver == address(0)) {
+            revert ERC2981InvalidDefaultRoyaltyReceiver(address(0));
+        }
+
+        _defaultRoyaltyInfo = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Removes default royalty information.
+     */
+    function _deleteDefaultRoyalty() internal virtual {
+        delete _defaultRoyaltyInfo;
+    }
+
+    /**
+     * @dev Sets the royalty information for a specific token id, overriding the global default.
+     *
+     * Requirements:
+     *
+     * - `receiver` cannot be the zero address.
+     * - `feeNumerator` cannot be greater than the fee denominator.
+     */
+    function _setTokenRoyalty(uint256 tokenId, address receiver, uint96 feeNumerator) internal virtual {
+        uint256 denominator = _feeDenominator();
+        if (feeNumerator > denominator) {
+            // Royalty fee will exceed the sale price
+            revert ERC2981InvalidTokenRoyalty(tokenId, feeNumerator, denominator);
+        }
+        if (receiver == address(0)) {
+            revert ERC2981InvalidTokenRoyaltyReceiver(tokenId, address(0));
+        }
+
+        _tokenRoyaltyInfo[tokenId] = RoyaltyInfo(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Resets royalty information for the token id back to the global default.
+     */
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
+        delete _tokenRoyaltyInfo[tokenId];
+    }
+}
+
+
+// File @openzeppelin/contracts/interfaces/draft-IERC6093.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/draft-IERC6093.sol)
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Standard ERC20 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
+ */
+interface IERC20Errors {
+    /**
+     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param balance Current balance for the interacting account.
+     * @param needed Minimum amount required to perform a transfer.
+     */
+    error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC20InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC20InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `spender`’s `allowance`. Used in transfers.
+     * @param spender Address that may be allowed to operate on tokens without being their owner.
+     * @param allowance Amount of tokens a `spender` is allowed to operate with.
+     * @param needed Minimum amount required to perform a transfer.
+     */
+    error ERC20InsufficientAllowance(address spender, uint256 allowance, uint256 needed);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC20InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `spender` to be approved. Used in approvals.
+     * @param spender Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC20InvalidSpender(address spender);
+}
+
+/**
+ * @dev Standard ERC721 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
+ */
+interface IERC721Errors {
+    /**
+     * @dev Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in EIP-20.
+     * Used in balance queries.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC721InvalidOwner(address owner);
+
+    /**
+     * @dev Indicates a `tokenId` whose `owner` is the zero address.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC721NonexistentToken(uint256 tokenId);
+
+    /**
+     * @dev Indicates an error related to the ownership over a particular token. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param tokenId Identifier number of a token.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC721IncorrectOwner(address sender, uint256 tokenId, address owner);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC721InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC721InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC721InsufficientApproval(address operator, uint256 tokenId);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC721InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC721InvalidOperator(address operator);
+}
+
+/**
+ * @dev Standard ERC1155 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
+ */
+interface IERC1155Errors {
+    /**
+     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param balance Current balance for the interacting account.
+     * @param needed Minimum amount required to perform a transfer.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC1155InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC1155InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC1155MissingApprovalForAll(address operator, address owner);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC1155InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC1155InvalidOperator(address operator);
+
+    /**
+     * @dev Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
+     * Used in batch transfers.
+     * @param idsLength Length of the array of token identifiers
+     * @param valuesLength Length of the array of token amounts
+     */
+    error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/IERC721.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/IERC721.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Required interface of an ERC721 compliant contract.
+ */
+interface IERC721 is IERC165 {
+    /**
+     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    /**
+     * @dev Returns the number of tokens in ``owner``'s account.
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+     *   a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must have been allowed to move this token by either {approve} or
+     *   {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon
+     *   a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+
+    /**
+     * @dev Transfers `tokenId` token from `from` to `to`.
+     *
+     * WARNING: Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721
+     * or else they may be permanently lost. Usage of {safeTransferFrom} prevents loss, though the caller must
+     * understand this adds an external call which potentially creates a reentrancy vulnerability.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 tokenId) external;
+
+    /**
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     * The approval is cleared when the token is transferred.
+     *
+     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.
+     *
+     * Requirements:
+     *
+     * - The caller must own the token or be an approved operator.
+     * - `tokenId` must exist.
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address to, uint256 tokenId) external;
+
+    /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.
+     *
+     * Requirements:
+     *
+     * - The `operator` cannot be the address zero.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function setApprovalForAll(address operator, bool approved) external;
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}
+     */
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/extensions/IERC721Metadata.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
+ */
+interface IERC721Metadata is IERC721 {
+    /**
+     * @dev Returns the token collection name.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the token collection symbol.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/IERC721Receiver.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
+ */
+interface IERC721Receiver {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be
+     * reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
+}
+
+
+// File @openzeppelin/contracts/utils/Context.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _contextSuffixLength() internal view virtual returns (uint256) {
+        return 0;
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/math/Math.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflowedMulDiv();
+
+    enum Rounding {
+        Floor, // Toward negative infinity
+        Ceil, // Toward positive infinity
+        Trunc, // Toward zero
+        Expand // Away from zero
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow.
+        return (a & b) + (a ^ b) / 2;
+    }
+
+    /**
+     * @dev Returns the ceiling of the division of two numbers.
+     *
+     * This differs from standard division with `/` in that it rounds towards infinity instead
+     * of rounding towards zero.
+     */
+    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (b == 0) {
+            // Guarantee the same behavior as in a regular Solidity division.
+            return a / b;
+        }
+
+        // (a + b - 1) / b can overflow on addition, so we distribute.
+        return a == 0 ? 0 : (a - 1) / b + 1;
+    }
+
+    /**
+     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
+     * denominator == 0.
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
+     * Uniswap Labs also under MIT license.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
+        unchecked {
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // variables such that product = prod1 * 2^256 + prod0.
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
+            uint256 prod1; // Most significant 256 bits of the product
+            assembly {
+                let mm := mulmod(x, y, not(0))
+                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
+            }
+
+            // Handle non-overflow cases, 256 by 256 division.
+            if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
+                return prod0 / denominator;
+            }
+
+            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            if (denominator <= prod1) {
+                revert MathOverflowedMulDiv();
+            }
+
+            ///////////////////////////////////////////////
+            // 512 by 256 division.
+            ///////////////////////////////////////////////
+
+            // Make division exact by subtracting the remainder from [prod1 prod0].
+            uint256 remainder;
+            assembly {
+                // Compute remainder using mulmod.
+                remainder := mulmod(x, y, denominator)
+
+                // Subtract 256 bit number from 512 bit number.
+                prod1 := sub(prod1, gt(remainder, prod0))
+                prod0 := sub(prod0, remainder)
+            }
+
+            // Factor powers of two out of denominator and compute largest power of two divisor of denominator.
+            // Always >= 1. See https://cs.stackexchange.com/q/138556/92363.
+
+            uint256 twos = denominator & (0 - denominator);
+            assembly {
+                // Divide denominator by twos.
+                denominator := div(denominator, twos)
+
+                // Divide [prod1 prod0] by twos.
+                prod0 := div(prod0, twos)
+
+                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                twos := add(div(sub(0, twos), twos), 1)
+            }
+
+            // Shift in bits from prod1 into prod0.
+            prod0 |= prod1 * twos;
+
+            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
+            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv = 1 mod 2^4.
+            uint256 inverse = (3 * denominator) ^ 2;
+
+            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
+            // works in modular arithmetic, doubling the correct bits in each step.
+            inverse *= 2 - denominator * inverse; // inverse mod 2^8
+            inverse *= 2 - denominator * inverse; // inverse mod 2^16
+            inverse *= 2 - denominator * inverse; // inverse mod 2^32
+            inverse *= 2 - denominator * inverse; // inverse mod 2^64
+            inverse *= 2 - denominator * inverse; // inverse mod 2^128
+            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+
+            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
+            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
+            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // is no longer required.
+            result = prod0 * inverse;
+            return result;
+        }
+    }
+
+    /**
+     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
+        uint256 result = mulDiv(x, y, denominator);
+        if (unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0) {
+            result += 1;
+        }
+        return result;
+    }
+
+    /**
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
+     * towards zero.
+     *
+     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+     */
+    function sqrt(uint256 a) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
+        uint256 result = 1 << (log2(a) >> 1);
+
+        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
+        // into the expected uint128 result.
+        unchecked {
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            return min(result, a / result);
+        }
+    }
+
+    /**
+     * @notice Calculates sqrt(a), following the selected rounding direction.
+     */
+    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = sqrt(a);
+            return result + (unsignedRoundsUp(rounding) && result * result < a ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 2 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 128;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 64;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 32;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 16;
+            }
+            if (value >> 8 > 0) {
+                value >>= 8;
+                result += 8;
+            }
+            if (value >> 4 > 0) {
+                value >>= 4;
+                result += 4;
+            }
+            if (value >> 2 > 0) {
+                value >>= 2;
+                result += 2;
+            }
+            if (value >> 1 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log2(value);
+            return result + (unsignedRoundsUp(rounding) && 1 << result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 10 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log10(value);
+            return result + (unsignedRoundsUp(rounding) && 10 ** result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 256 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     *
+     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
+     */
+    function log256(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 16;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 8;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 4;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 2;
+            }
+            if (value >> 8 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log256(value);
+            return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
+     */
+    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
+        return uint8(rounding) % 2 == 1;
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/math/SignedMath.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/SignedMath.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMath {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Strings.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/Strings.sol)
+
+pragma solidity ^0.8.20;
+
+
+/**
+ * @dev String operations.
+ */
+library Strings {
+    bytes16 private constant HEX_DIGITS = "0123456789abcdef";
+    uint8 private constant ADDRESS_LENGTH = 20;
+
+    /**
+     * @dev The `value` string doesn't fit in the specified `length`.
+     */
+    error StringsInsufficientHexLength(uint256 value, uint256 length);
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` decimal representation.
+     */
+    function toString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = Math.log10(value) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(value, 10), HEX_DIGITS))
+                }
+                value /= 10;
+                if (value == 0) break;
+            }
+            return buffer;
+        }
+    }
+
+    /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toStringSigned(int256 value) internal pure returns (string memory) {
+        return string.concat(value < 0 ? "-" : "", toString(SignedMath.abs(value)));
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            return toHexString(value, Math.log256(value) + 1);
+        }
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
+     */
+    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        uint256 localValue = value;
+        bytes memory buffer = new bytes(2 * length + 2);
+        buffer[0] = "0";
+        buffer[1] = "x";
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = HEX_DIGITS[localValue & 0xf];
+            localValue >>= 4;
+        }
+        if (localValue != 0) {
+            revert StringsInsufficientHexLength(value, length);
+        }
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal
+     * representation.
+     */
+    function toHexString(address addr) internal pure returns (string memory) {
+        return toHexString(uint256(uint160(addr)), ADDRESS_LENGTH);
+    }
+
+    /**
+     * @dev Returns true if the two strings are equal.
+     */
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return bytes(a).length == bytes(b).length && keccak256(bytes(a)) == keccak256(bytes(b));
+    }
+}
+
+
+// File @openzeppelin/contracts/token/ERC721/ERC721.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/ERC721.sol)
+
+pragma solidity ^0.8.20;
+
+
+
+
+
+
+
+/**
+ * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
+ * the Metadata extension, but not including the Enumerable extension, which is available separately as
+ * {ERC721Enumerable}.
+ */
+abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Errors {
+    using Strings for uint256;
+
+    // Token name
+    string private _name;
+
+    // Token symbol
+    string private _symbol;
+
+    mapping(uint256 tokenId => address) private _owners;
+
+    mapping(address owner => uint256) private _balances;
+
+    mapping(uint256 tokenId => address) private _tokenApprovals;
+
+    mapping(address owner => mapping(address operator => bool)) private _operatorApprovals;
+
+    /**
+     * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
+     */
+    constructor(string memory name_, string memory symbol_) {
+        _name = name_;
+        _symbol = symbol_;
+    }
+
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC721Metadata).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev See {IERC721-balanceOf}.
+     */
+    function balanceOf(address owner) public view virtual returns (uint256) {
+        if (owner == address(0)) {
+            revert ERC721InvalidOwner(address(0));
+        }
+        return _balances[owner];
+    }
+
+    /**
+     * @dev See {IERC721-ownerOf}.
+     */
+    function ownerOf(uint256 tokenId) public view virtual returns (address) {
+        return _requireOwned(tokenId);
+    }
+
+    /**
+     * @dev See {IERC721Metadata-name}.
+     */
+    function name() public view virtual returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev See {IERC721Metadata-symbol}.
+     */
+    function symbol() public view virtual returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenURI(uint256 tokenId) public view virtual returns (string memory) {
+        _requireOwned(tokenId);
+
+        string memory baseURI = _baseURI();
+        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
+    }
+
+    /**
+     * @dev Base URI for computing {tokenURI}. If set, the resulting URI for each
+     * token will be the concatenation of the `baseURI` and the `tokenId`. Empty
+     * by default, can be overridden in child contracts.
+     */
+    function _baseURI() internal view virtual returns (string memory) {
+        return "";
+    }
+
+    /**
+     * @dev See {IERC721-approve}.
+     */
+    function approve(address to, uint256 tokenId) public virtual {
+        _approve(to, tokenId, _msgSender());
+    }
+
+    /**
+     * @dev See {IERC721-getApproved}.
+     */
+    function getApproved(uint256 tokenId) public view virtual returns (address) {
+        _requireOwned(tokenId);
+
+        return _getApproved(tokenId);
+    }
+
+    /**
+     * @dev See {IERC721-setApprovalForAll}.
+     */
+    function setApprovalForAll(address operator, bool approved) public virtual {
+        _setApprovalForAll(_msgSender(), operator, approved);
+    }
+
+    /**
+     * @dev See {IERC721-isApprovedForAll}.
+     */
+    function isApprovedForAll(address owner, address operator) public view virtual returns (bool) {
+        return _operatorApprovals[owner][operator];
+    }
+
+    /**
+     * @dev See {IERC721-transferFrom}.
+     */
+    function transferFrom(address from, address to, uint256 tokenId) public virtual {
+        if (to == address(0)) {
+            revert ERC721InvalidReceiver(address(0));
+        }
+        // Setting an "auth" arguments enables the `_isAuthorized` check which verifies that the token exists
+        // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+        address previousOwner = _update(to, tokenId, _msgSender());
+        if (previousOwner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
+        }
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId) public {
+        safeTransferFrom(from, to, tokenId, "");
+    }
+
+    /**
+     * @dev See {IERC721-safeTransferFrom}.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public virtual {
+        transferFrom(from, to, tokenId);
+        _checkOnERC721Received(from, to, tokenId, data);
+    }
+
+    /**
+     * @dev Returns the owner of the `tokenId`. Does NOT revert if token doesn't exist
+     *
+     * IMPORTANT: Any overrides to this function that add ownership of tokens not tracked by the
+     * core ERC721 logic MUST be matched with the use of {_increaseBalance} to keep balances
+     * consistent with ownership. The invariant to preserve is that for any address `a` the value returned by
+     * `balanceOf(a)` must be equal to the number of tokens such that `_ownerOf(tokenId)` is `a`.
+     */
+    function _ownerOf(uint256 tokenId) internal view virtual returns (address) {
+        return _owners[tokenId];
+    }
+
+    /**
+     * @dev Returns the approved address for `tokenId`. Returns 0 if `tokenId` is not minted.
+     */
+    function _getApproved(uint256 tokenId) internal view virtual returns (address) {
+        return _tokenApprovals[tokenId];
+    }
+
+    /**
+     * @dev Returns whether `spender` is allowed to manage `owner`'s tokens, or `tokenId` in
+     * particular (ignoring whether it is owned by `owner`).
+     *
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
+     */
+    function _isAuthorized(address owner, address spender, uint256 tokenId) internal view virtual returns (bool) {
+        return
+            spender != address(0) &&
+            (owner == spender || isApprovedForAll(owner, spender) || _getApproved(tokenId) == spender);
+    }
+
+    /**
+     * @dev Checks if `spender` can operate on `tokenId`, assuming the provided `owner` is the actual owner.
+     * Reverts if `spender` does not have approval from the provided `owner` for the given token or for all its assets
+     * the `spender` for the specific `tokenId`.
+     *
+     * WARNING: This function assumes that `owner` is the actual owner of `tokenId` and does not verify this
+     * assumption.
+     */
+    function _checkAuthorized(address owner, address spender, uint256 tokenId) internal view virtual {
+        if (!_isAuthorized(owner, spender, tokenId)) {
+            if (owner == address(0)) {
+                revert ERC721NonexistentToken(tokenId);
+            } else {
+                revert ERC721InsufficientApproval(spender, tokenId);
+            }
+        }
+    }
+
+    /**
+     * @dev Unsafe write access to the balances, used by extensions that "mint" tokens using an {ownerOf} override.
+     *
+     * NOTE: the value is limited to type(uint128).max. This protect against _balance overflow. It is unrealistic that
+     * a uint256 would ever overflow from increments when these increments are bounded to uint128 values.
+     *
+     * WARNING: Increasing an account's balance using this function tends to be paired with an override of the
+     * {_ownerOf} function to resolve the ownership of the corresponding tokens so that balances and ownership
+     * remain consistent with one another.
+     */
+    function _increaseBalance(address account, uint128 value) internal virtual {
+        unchecked {
+            _balances[account] += value;
+        }
+    }
+
+    /**
+     * @dev Transfers `tokenId` from its current owner to `to`, or alternatively mints (or burns) if the current owner
+     * (or `to`) is the zero address. Returns the owner of the `tokenId` before the update.
+     *
+     * The `auth` argument is optional. If the value passed is non 0, then this function will check that
+     * `auth` is either the owner of the token, or approved to operate on the token (by the owner).
+     *
+     * Emits a {Transfer} event.
+     *
+     * NOTE: If overriding this function in a way that tracks balances, see also {_increaseBalance}.
+     */
+    function _update(address to, uint256 tokenId, address auth) internal virtual returns (address) {
+        address from = _ownerOf(tokenId);
+
+        // Perform (optional) operator check
+        if (auth != address(0)) {
+            _checkAuthorized(from, auth, tokenId);
+        }
+
+        // Execute the update
+        if (from != address(0)) {
+            // Clear approval. No need to re-authorize or emit the Approval event
+            _approve(address(0), tokenId, address(0), false);
+
+            unchecked {
+                _balances[from] -= 1;
+            }
+        }
+
+        if (to != address(0)) {
+            unchecked {
+                _balances[to] += 1;
+            }
+        }
+
+        _owners[tokenId] = to;
+
+        emit Transfer(from, to, tokenId);
+
+        return from;
+    }
+
+    /**
+     * @dev Mints `tokenId` and transfers it to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
+     *
+     * Requirements:
+     *
+     * - `tokenId` must not exist.
+     * - `to` cannot be the zero address.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _mint(address to, uint256 tokenId) internal {
+        if (to == address(0)) {
+            revert ERC721InvalidReceiver(address(0));
+        }
+        address previousOwner = _update(to, tokenId, address(0));
+        if (previousOwner != address(0)) {
+            revert ERC721InvalidSender(address(0));
+        }
+    }
+
+    /**
+     * @dev Mints `tokenId`, transfers it to `to` and checks for `to` acceptance.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must not exist.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeMint(address to, uint256 tokenId) internal {
+        _safeMint(to, tokenId, "");
+    }
+
+    /**
+     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
+     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+     */
+    function _safeMint(address to, uint256 tokenId, bytes memory data) internal virtual {
+        _mint(to, tokenId);
+        _checkOnERC721Received(address(0), to, tokenId, data);
+    }
+
+    /**
+     * @dev Destroys `tokenId`.
+     * The approval is cleared when the token is burned.
+     * This is an internal function that does not check if the sender is authorized to operate on the token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _burn(uint256 tokenId) internal {
+        address previousOwner = _update(address(0), tokenId, address(0));
+        if (previousOwner == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+    }
+
+    /**
+     * @dev Transfers `tokenId` from `from` to `to`.
+     *  As opposed to {transferFrom}, this imposes no restrictions on msg.sender.
+     *
+     * Requirements:
+     *
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must be owned by `from`.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _transfer(address from, address to, uint256 tokenId) internal {
+        if (to == address(0)) {
+            revert ERC721InvalidReceiver(address(0));
+        }
+        address previousOwner = _update(to, tokenId, address(0));
+        if (previousOwner == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        } else if (previousOwner != from) {
+            revert ERC721IncorrectOwner(from, tokenId, previousOwner);
+        }
+    }
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`, checking that contract recipients
+     * are aware of the ERC721 standard to prevent tokens from being forever locked.
+     *
+     * `data` is additional data, it has no specified format and it is sent in call to `to`.
+     *
+     * This internal function is like {safeTransferFrom} in the sense that it invokes
+     * {IERC721Receiver-onERC721Received} on the receiver, and can be used to e.g.
+     * implement alternative mechanisms to perform token transfer, such as signature-based.
+     *
+     * Requirements:
+     *
+     * - `tokenId` token must exist and be owned by `from`.
+     * - `to` cannot be the zero address.
+     * - `from` cannot be the zero address.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeTransfer(address from, address to, uint256 tokenId) internal {
+        _safeTransfer(from, to, tokenId, "");
+    }
+
+    /**
+     * @dev Same as {xref-ERC721-_safeTransfer-address-address-uint256-}[`_safeTransfer`], with an additional `data` parameter which is
+     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
+     */
+    function _safeTransfer(address from, address to, uint256 tokenId, bytes memory data) internal virtual {
+        _transfer(from, to, tokenId);
+        _checkOnERC721Received(from, to, tokenId, data);
+    }
+
+    /**
+     * @dev Approve `to` to operate on `tokenId`
+     *
+     * The `auth` argument is optional. If the value passed is non 0, then this function will check that `auth` is
+     * either the owner of the token, or approved to operate on all tokens held by this owner.
+     *
+     * Emits an {Approval} event.
+     *
+     * Overrides to this logic should be done to the variant with an additional `bool emitEvent` argument.
+     */
+    function _approve(address to, uint256 tokenId, address auth) internal {
+        _approve(to, tokenId, auth, true);
+    }
+
+    /**
+     * @dev Variant of `_approve` with an optional flag to enable or disable the {Approval} event. The event is not
+     * emitted in the context of transfers.
+     */
+    function _approve(address to, uint256 tokenId, address auth, bool emitEvent) internal virtual {
+        // Avoid reading the owner unless necessary
+        if (emitEvent || auth != address(0)) {
+            address owner = _requireOwned(tokenId);
+
+            // We do not use _isAuthorized because single-token approvals should not be able to call approve
+            if (auth != address(0) && owner != auth && !isApprovedForAll(owner, auth)) {
+                revert ERC721InvalidApprover(auth);
+            }
+
+            if (emitEvent) {
+                emit Approval(owner, to, tokenId);
+            }
+        }
+
+        _tokenApprovals[tokenId] = to;
+    }
+
+    /**
+     * @dev Approve `operator` to operate on all of `owner` tokens
+     *
+     * Requirements:
+     * - operator can't be the address zero.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function _setApprovalForAll(address owner, address operator, bool approved) internal virtual {
+        if (operator == address(0)) {
+            revert ERC721InvalidOperator(operator);
+        }
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
+    /**
+     * @dev Reverts if the `tokenId` doesn't have a current owner (it hasn't been minted, or it has been burned).
+     * Returns the owner.
+     *
+     * Overrides to ownership logic should be done to {_ownerOf}.
+     */
+    function _requireOwned(uint256 tokenId) internal view returns (address) {
+        address owner = _ownerOf(tokenId);
+        if (owner == address(0)) {
+            revert ERC721NonexistentToken(tokenId);
+        }
+        return owner;
+    }
+
+    /**
+     * @dev Private function to invoke {IERC721Receiver-onERC721Received} on a target address. This will revert if the
+     * recipient doesn't accept the token transfer. The call is not executed if the target address is not a contract.
+     *
+     * @param from address representing the previous owner of the given token ID
+     * @param to target address that will receive the tokens
+     * @param tokenId uint256 ID of the token to be transferred
+     * @param data bytes optional data to send along with the call
+     */
+    function _checkOnERC721Received(address from, address to, uint256 tokenId, bytes memory data) private {
+        if (to.code.length > 0) {
+            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, data) returns (bytes4 retval) {
+                if (retval != IERC721Receiver.onERC721Received.selector) {
+                    revert ERC721InvalidReceiver(to);
+                }
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert ERC721InvalidReceiver(to);
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// File @openzeppelin/contracts/utils/Base64.sol@v5.0.2
+
+// Original license: SPDX_License_Identifier: MIT
+// OpenZeppelin Contracts (last updated v5.0.2) (utils/Base64.sol)
+
+pragma solidity ^0.8.20;
+
+/**
+ * @dev Provides a set of functions to operate with Base64 strings.
+ */
+library Base64 {
+    /**
+     * @dev Base64 Encoding/Decoding Table
+     */
+    string internal constant _TABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    /**
+     * @dev Converts a `bytes` to its Bytes64 `string` representation.
+     */
+    function encode(bytes memory data) internal pure returns (string memory) {
+        /**
+         * Inspired by Brecht Devos (Brechtpd) implementation - MIT licence
+         * https://github.com/Brechtpd/base64/blob/e78d9fd951e7b0977ddca77d92dc85183770daf4/base64.sol
+         */
+        if (data.length == 0) return "";
+
+        // Loads the table into memory
+        string memory table = _TABLE;
+
+        // Encoding takes 3 bytes chunks of binary data from `bytes` data parameter
+        // and split into 4 numbers of 6 bits.
+        // The final Base64 length should be `bytes` data length multiplied by 4/3 rounded up
+        // - `data.length + 2`  -> Round up
+        // - `/ 3`              -> Number of 3-bytes chunks
+        // - `4 *`              -> 4 characters for each chunk
+        string memory result = new string(4 * ((data.length + 2) / 3));
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            // Prepare the lookup table (skip the first "length" byte)
+            let tablePtr := add(table, 1)
+
+            // Prepare result pointer, jump over length
+            let resultPtr := add(result, 0x20)
+            let dataPtr := data
+            let endPtr := add(data, mload(data))
+
+            // In some cases, the last iteration will read bytes after the end of the data. We cache the value, and
+            // set it to zero to make sure no dirty bytes are read in that section.
+            let afterPtr := add(endPtr, 0x20)
+            let afterCache := mload(afterPtr)
+            mstore(afterPtr, 0x00)
+
+            // Run over the input, 3 bytes at a time
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
+                // Advance 3 bytes
+                dataPtr := add(dataPtr, 3)
+                let input := mload(dataPtr)
+
+                // To write each character, shift the 3 byte (24 bits) chunk
+                // 4 times in blocks of 6 bits for each character (18, 12, 6, 0)
+                // and apply logical AND with 0x3F to bitmask the least significant 6 bits.
+                // Use this as an index into the lookup table, mload an entire word
+                // so the desired character is in the least significant byte, and
+                // mstore8 this least significant byte into the result and continue.
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(18, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
+                resultPtr := add(resultPtr, 1) // Advance
+            }
+
+            // Reset the value that was cached
+            mstore(afterPtr, afterCache)
+
+            // When data `bytes` is not exactly 3 bytes long
+            // it is padded with `=` characters at the end
+            switch mod(mload(data), 3)
+            case 1 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+                mstore8(sub(resultPtr, 2), 0x3d)
+            }
+            case 2 {
+                mstore8(sub(resultPtr, 1), 0x3d)
+            }
+        }
+
+        return result;
+    }
+}
+
+
+// File contracts/AgenticBull.sol
+
+// Original license: SPDX_License_Identifier: MIT
+pragma solidity ^0.8.24;
+
+
+
+
+interface IAgentIdRegistry { function handleOf(address wallet) external view returns (string memory); }
+
+/// @title Agentic Bull - 3,000 fully onchain pixel bulls for AI agents with an Agent ID on BNB Chain.
+/// @notice Agent ID holders only. First 1,000 free, then 2,000 paid. Independent community project, not affiliated with Binance.
+/// @dev No owner, no admin, no pause, no withdraw, no setters. Every payment is forwarded to PAYOUT inside the mint.
+///      Mint: call challengeOf(wallet) -> (question, a, b). answer = a * b + number of characters in your Agent ID without ".ai".
+///      Free phase (isFreePhase() == true): mintFree(answer), value 0, 1 per wallet and 1 per Agent ID.
+///      Paid phase: mint(quantity, answer), quantity 1-10, value exactly 140000000000000 wei x quantity, 10 per wallet and 10 per Agent ID.
+contract AgenticBull is ERC721, ERC2981 {
+    using Strings for uint256;
+
+    IAgentIdRegistry public constant registry = IAgentIdRegistry(0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F);
+    address public constant PAYOUT = 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a;
+    uint256 public constant MAX_SUPPLY = 3000;
+    uint256 public constant FREE_SUPPLY = 1000;
+    uint256 public constant PRICE = 140000000000000; // 0.00014 BNB
+    uint256 public constant MAX_PAID_PER_WALLET = 10;
+    uint256 public constant MAX_PAID_PER_AGENT = 10;
+    uint256 public constant RESERVE = 5;
+    uint256 public immutable MINT_START;
+
+    event Minted(address indexed minter, string agentId, uint256 firstId, uint256 qty, bool free);
+
+    struct Count { uint128 free; uint128 paid; }
+
+    uint256 private _minted;
+    uint256 private _free;
+    uint16[5] private _left = [1800, 600, 375, 150, 75];
+    mapping(uint256 => uint256) private _tok; // (traitSeed << 8) | tier
+    mapping(address => Count) private _wallet;
+    mapping(bytes32 => Count) private _agent;
+
+    // <ART> generated by scripts/gen-art.js from scripts/art.js. Colours: 3 bytes each.
+    bytes private constant BG = hex"0b0f1a0f3d2a3d0f143a2e0a0a1f3d2a0f3d1c1c1c0a3333";
+    bytes private constant FUR = hex"2b2b2b6b3f1f8b4513c8a165e8e8e87d7d7da832323a6ea5";
+    bytes private constant MUZ = hex"5a4a42c49a6cdeb887f1dfc0f7c6c6c2b8b0e8a0a0a9d1f0";
+    bytes private constant FIX = hex"111111ffffffff2a2a00e5ffffd70039ff148b5a2bff6a009a9a9a16c784ff3b6b222222ffe14d"; // slots 3-15
+    bytes private constant HEAD = hex"01000005040903020706050306090606070f05020a050201";
+    bytes private constant MUZZLE = hex"010100030711050408150401050a0101";
+    bytes private constant FACE = hex"0203020206090106070a040103000109120102";
+    bytes private constant HORNS = hex"01020002050602020405020101020003040603020205030201030202010200030406030203040202040202020102010404060302020503020103020211060202";
+    bytes private constant EYES = hex"02040001080b0202030001090b010202050001080b0202050201000b080101030001080c020102030002070b04020b0b0101040001080b0101020e0001060b0602060001070b0501020f0201070a04040f0001080b0202";
+    bytes private constant RING = hex"010700020a1401010b150101";
+    bytes private constant ACC = hex"020c000207030503050507010400010b020101020e000207030501060401040d00010408020401070002071605010b170101030901010f1305010a0101141301010b030215100102160f01010207000308040402080201020a0201020500010b040101";
+    // </ART>
+
+    constructor(uint256 mintStart) ERC721("Agentic Bull", "BULL") {
+        MINT_START = mintStart;
+        _setDefaultRoyalty(PAYOUT, 500);
+        _mintBatch(PAYOUT, RESERVE);
+        _free = RESERVE;
+    }
+
+    // ------------------------------------------------------------------ mint
+
+    /// @notice Free mint, 1 per wallet and 1 per Agent ID, while totalMinted() < 1,000. Send 0 value.
+    function mintFree(uint256 answer) external {
+        string memory handle = _gate(answer);
+        require(_minted < FREE_SUPPLY, "Free mint over");
+        bytes32 k = keccak256(bytes(handle));
+        require(_wallet[msg.sender].free == 0, "Free limit: wallet");
+        require(_agent[k].free == 0, "Free limit: Agent ID");
+        _wallet[msg.sender].free = 1;
+        _agent[k].free = 1;
+        _free += 1;
+        uint256 first = _mintBatch(msg.sender, 1);
+        emit Minted(msg.sender, handle, first, 1, true);
+    }
+
+    /// @notice Paid mint after the free 1,000 are gone. value must be exactly PRICE * quantity.
+    function mint(uint256 quantity, uint256 answer) external payable {
+        string memory handle = _gate(answer);
+        require(_minted >= FREE_SUPPLY, "Free phase active");
+        require(quantity >= 1 && quantity <= 10, "Bad quantity");
+        require(_minted + quantity <= MAX_SUPPLY, "Sold out");
+        bytes32 k = keccak256(bytes(handle));
+        Count storage w = _wallet[msg.sender];
+        Count storage g = _agent[k];
+        require(w.paid + quantity <= MAX_PAID_PER_WALLET, "Wallet limit");
+        require(g.paid + quantity <= MAX_PAID_PER_AGENT, "Agent ID limit");
+        require(msg.value == PRICE * quantity, "Wrong payment");
+        w.paid += uint128(quantity);
+        g.paid += uint128(quantity);
+        uint256 first = _mintBatch(msg.sender, quantity);
+        emit Minted(msg.sender, handle, first, quantity, false);
+        (bool ok, ) = PAYOUT.call{value: msg.value}("");
+        require(ok, "Payout failed");
+    }
+
+    function _gate(uint256 answer) private view returns (string memory handle) {
+        require(block.timestamp >= MINT_START, "Mint not started");
+        require(msg.sender == tx.origin, "EOA only");
+        handle = registry.handleOf(msg.sender);
+        require(bytes(handle).length > 0, "Agent ID required");
+        (uint256 a, uint256 b) = _ab(msg.sender);
+        require(answer == a * b + bytes(handle).length, "Wrong answer");
+    }
+
+    function _mintBatch(address to, uint256 qty) private returns (uint256 first) {
+        uint256 id = _minted;
+        first = id + 1;
+        uint16[5] memory left = _left;
+        for (uint256 i; i < qty; ++i) {
+            bytes32 h = keccak256(abi.encodePacked(block.prevrandao, blockhash(block.number - 1), msg.sender, id + 1, id));
+            uint256 r = uint256(h) % (MAX_SUPPLY - id); // remaining pool size
+            uint256 t;
+            while (t < 4 && r >= left[t]) { r -= left[t]; ++t; }
+            left[t] -= 1;
+            ++id;
+            _tok[id] = (uint256(keccak256(abi.encodePacked(h))) << 8) | t;
+            _mint(to, id);
+        }
+        _left = left;
+        _minted = id;
+    }
+
+    function _ab(address wallet) private view returns (uint256 a, uint256 b) {
+        uint256 h = uint256(keccak256(abi.encodePacked(wallet, address(this))));
+        a = 2 + (h % 19);
+        b = 2 + ((h >> 8) % 19);
+    }
+
+    // ------------------------------------------------------------------ views
+
+    function totalMinted() public view returns (uint256) { return _minted; }
+    function freeMinted() external view returns (uint256) { return _free; }
+    function paidMinted() external view returns (uint256) { return _minted - _free; }
+    function mintedBy(address wallet) external view returns (uint256) { Count memory c = _wallet[wallet]; return c.free + c.paid; }
+    function freeMintedBy(address wallet) external view returns (uint256) { return _wallet[wallet].free; }
+    function mintedByAgent(string calldata handle) external view returns (uint256) { Count memory c = _agent[keccak256(bytes(handle))]; return c.free + c.paid; }
+    function isFreePhase() public view returns (bool) { return _minted < FREE_SUPPLY; }
+    function agentIdOf(address wallet) external view returns (string memory) { return registry.handleOf(wallet); }
+
+    /// @notice Tier of a token: 0 Common, 1 Uncommon, 2 Rare, 3 Epic, 4 Legendary.
+    function tierOf(uint256 tokenId) external view returns (uint8 tier, string memory name) {
+        _requireOwned(tokenId);
+        tier = uint8(_tok[tokenId]);
+        name = _item("Common,Uncommon,Rare,Epic,Legendary", tier);
+    }
+
+    /// @notice Tokens still unminted per tier: [Common, Uncommon, Rare, Epic, Legendary].
+    function tierRemaining() external view returns (uint256[5] memory r) {
+        for (uint256 i; i < 5; ++i) r[i] = _left[i];
+    }
+
+    /// @notice How many more this wallet can mint right now in the current phase (0 if it has no Agent ID).
+    function mintableBy(address wallet) external view returns (uint256) {
+        string memory handle = registry.handleOf(wallet);
+        if (bytes(handle).length == 0 || _minted >= MAX_SUPPLY) return 0;
+        Count memory w = _wallet[wallet];
+        Count memory g = _agent[keccak256(bytes(handle))];
+        if (_minted < FREE_SUPPLY) return (w.free == 0 && g.free == 0) ? 1 : 0;
+        uint256 m = MAX_PAID_PER_WALLET - w.paid;
+        uint256 n = MAX_PAID_PER_AGENT - g.paid;
+        if (n < m) m = n;
+        n = MAX_SUPPLY - _minted;
+        return n < m ? n : m;
+    }
+
+    /// @notice The agent challenge for a wallet. The answer itself is never returned by any function.
+    function challengeOf(address wallet) external view returns (string memory question, uint256 a, uint256 b) {
+        (a, b) = _ab(wallet);
+        question = string.concat("What is ", a.toString(), " x ", b.toString(), " plus the number of characters in your Agent ID (without .ai)?");
+    }
+
+    // ------------------------------------------------------------------ metadata
+
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        _requireOwned(tokenId);
+        uint256 d = _tok[tokenId];
+        uint256 t = d & 0xff;
+        uint256 s = d >> 8;
+        (uint256 horns, uint256 acc) = t == 4 ? (4, 5) : ((s >> 16) % 6, (s >> 40) % 6);
+        string memory attrs = string.concat(
+            _attr("Tier", _item("Common,Uncommon,Rare,Epic,Legendary", t)),
+            _attr("Background", _item("Midnight,Bull Green,Candle Red,Gold Rush,Deep Sea,Purple Haze,Charcoal,Teal", s % 8)),
+            _attr("Fur", _item("Black,Brown,Chestnut,Tan,White,Grey,Red,Cyber Blue", (s >> 8) % 8)),
+            _attr("Horns", _item("Short,Long,Curved,Broken,Golden,Neon", horns)),
+            _attr("Eyes", _item("Normal,Laser,Sleepy,Sunglasses,Visor,Glowing", (s >> 24) % 6)),
+            _attr("Nose Ring", (s >> 32) % 3 == 0 ? "Yes" : "No"),
+            string.concat('{"trait_type":"Accessory","value":"', _item("None,Cap,Headphones,Chain,Cigar,Crown", acc), '"}')
+        );
+        return _json(string.concat(
+            '{"name":"Agentic Bull #', tokenId.toString(),
+            '","description":"Agentic Bull: 3,000 fully onchain pixel bulls minted by AI agents holding an Agent ID on BNB Chain. Independent community project, not affiliated with Binance.","image":"data:image/svg+xml;base64,',
+            Base64.encode(bytes(_svg(s, t))), '","attributes":[', attrs, "]}"
+        ));
+    }
+
+    function contractURI() external pure returns (string memory) {
+        return _json(string.concat(
+            '{"name":"Agentic Bull","description":"3,000 fully onchain pixel bulls for AI agents with an Agent ID on BNB Chain. First 1,000 free, then 0.00014 BNB. Independent community project, not affiliated with Binance.","image":"data:image/svg+xml;base64,',
+            Base64.encode(bytes(_svg(0x01020003, 4))),
+            '","external_link":"PASTE_SITE_URL_HERE","seller_fee_basis_points":500,"fee_recipient":"0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a"}'
+        ));
+    }
+
+    /// @notice Raw SVG for a token (same image as in tokenURI).
+    function svgOf(uint256 tokenId) external view returns (string memory) {
+        _requireOwned(tokenId);
+        uint256 d = _tok[tokenId];
+        return _svg(d >> 8, d & 0xff);
+    }
+
+    function supportsInterface(bytes4 id) public view override(ERC721, ERC2981) returns (bool) {
+        return super.supportsInterface(id);
+    }
+
+    // ------------------------------------------------------------------ art
+
+    function _svg(uint256 s, uint256 t) private pure returns (string memory) {
+        uint256 hornType = t == 4 ? 4 : (s >> 16) % 6;
+        uint256 acc = t == 4 ? 5 : (s >> 40) % 6;
+        uint256 fur = (s >> 8) % 8;
+        bytes memory pal = bytes.concat(
+            _slice3(FUR, fur), _slice3(MUZ, fur),
+            hornType == 4 ? bytes(hex"ffd700") : hornType == 5 ? bytes(hex"39ff14") : bytes(hex"efe6cf"),
+            FIX
+        );
+        string memory head = string.concat(_rects(HEAD, 0, pal), _rects(MUZZLE, 0, pal));
+        string memory out = string.concat(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="480" height="480" shape-rendering="crispEdges"><rect width="24" height="24" fill="#',
+            _hex(_slice3(BG, s % 8)), '"/>',
+            t > 0 ? '<defs><pattern id="p" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="1" height="2" fill="#16c784" opacity=".35"/><rect x="2" y="2" width="1" height="1" fill="#ffd700" opacity=".25"/></pattern></defs><rect width="24" height="24" fill="url(#p)"/>' : "",
+            _rects(HORNS, hornType == 4 ? 1 : hornType == 5 ? 2 : hornType, pal)
+        );
+        if (t > 1) {
+            out = string.concat(out,
+                t == 2 ? '<g stroke="#39ff14" stroke-width="1">'
+                : t == 3 ? '<g stroke="#ff2bd6" stroke-width="1"><animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/>'
+                : '<g stroke="#ffd700" stroke-width="1"><animate attributeName="stroke-width" values=".6;1.8;.6" dur="2s" repeatCount="indefinite"/>',
+                head, "</g>");
+        }
+        out = string.concat(out, head, _rects(FACE, 0, pal), _rects(EYES, (s >> 24) % 6, pal));
+        if ((s >> 32) % 3 == 0) out = string.concat(out, _rects(RING, 0, pal));
+        if (acc > 0) out = string.concat(out, _rects(ACC, acc - 1, pal));
+        return string.concat(out, "</svg>");
+    }
+
+    /// @dev Draws item number `item` of `data`. Item: [groupCount, groups...]; group: [colour slot, flags, n, (x, y, w, h) * n].
+    ///      flags: 1 = do not mirror, 2 = translucent. Rects are mirrored onto the right half unless flag 1 is set.
+    function _rects(bytes memory data, uint256 item, bytes memory pal) private pure returns (string memory out) {
+        uint256 p;
+        for (; item > 0; --item) {
+            uint256 g = uint8(data[p++]);
+            for (; g > 0; --g) p += 3 + 4 * uint8(data[p + 2]);
+        }
+        for (uint256 g = uint8(data[p++]); g > 0; --g) {
+            uint256 f = uint8(data[p + 1]);
+            uint256 n = uint8(data[p + 2]);
+            out = string.concat(out, '<g fill="#', _hex(_slice3(pal, uint8(data[p]))), f & 2 != 0 ? '" opacity=".45">' : '">');
+            p += 3;
+            for (; n > 0; --n) {
+                uint256 x = uint8(data[p]);
+                uint256 w = uint8(data[p + 2]);
+                string memory tail = string.concat('" y="', uint256(uint8(data[p + 1])).toString(), '" width="', w.toString(), '" height="', uint256(uint8(data[p + 3])).toString(), '"/>');
+                p += 4;
+                out = string.concat(out, '<rect x="', x.toString(), tail);
+                if (f & 1 == 0) out = string.concat(out, '<rect x="', (24 - x - w).toString(), tail);
+            }
+            out = string.concat(out, "</g>");
+        }
+    }
+
+    function _slice3(bytes memory b, uint256 i) private pure returns (bytes memory r) {
+        r = new bytes(3);
+        r[0] = b[i * 3];
+        r[1] = b[i * 3 + 1];
+        r[2] = b[i * 3 + 2];
+    }
+
+    function _hex(bytes memory b) private pure returns (string memory) {
+        bytes memory o = new bytes(6);
+        bytes16 sym = "0123456789abcdef";
+        for (uint256 i; i < 3; ++i) {
+            o[2 * i] = sym[uint8(b[i]) >> 4];
+            o[2 * i + 1] = sym[uint8(b[i]) & 15];
+        }
+        return string(o);
+    }
+
+    function _item(string memory list, uint256 index) private pure returns (string memory) {
+        bytes memory l = bytes(list);
+        uint256 start;
+        uint256 n;
+        for (uint256 i; i <= l.length; ++i) {
+            if (i == l.length || l[i] == ",") {
+                if (n == index) {
+                    bytes memory r = new bytes(i - start);
+                    for (uint256 j; j < r.length; ++j) r[j] = l[start + j];
+                    return string(r);
+                }
+                ++n;
+                start = i + 1;
+            }
+        }
+        return "";
+    }
+
+    function _attr(string memory k, string memory v) private pure returns (string memory) {
+        return string.concat('{"trait_type":"', k, '","value":"', v, '"},');
+    }
+
+    function _json(string memory j) private pure returns (string memory) {
+        return string.concat("data:application/json;base64,", Base64.encode(bytes(j)));
+    }
+}

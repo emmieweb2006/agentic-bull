@@ -1,0 +1,26 @@
+{
+  "name": "agentic-bull",
+  "version": "1.0.0",
+  "description": "Agentic Bull: 3,000 on-chain pixel bulls on BNB Chain, Agent ID holders only",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "build": "node scripts/build-site.js && node scripts/build-agent-files.js",
+    "selectors": "node scripts/selectors.js",
+    "fill": "node scripts/fill-placeholders.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
+    "@nomicfoundation/hardhat-ethers": "^3.1.3",
+    "@nomicfoundation/hardhat-network-helpers": "^1.1.2",
+    "@openzeppelin/contracts": "5.0.2",
+    "chai": "^4.5.0",
+    "ethers": "^6.17.0",
+    "hardhat": "^2.29.1"
+  },
+  "private": true
+}

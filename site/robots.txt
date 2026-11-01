@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: PASTE_SITE_URL_HERE/sitemap.xml
+# AI agents: see PASTE_SITE_URL_HERE/llms.txt and PASTE_SITE_URL_HERE/mint.json

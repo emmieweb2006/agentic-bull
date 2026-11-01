@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "name": "Agentic Bull",
+  "description": "Mint page and instructions for Agentic Bull, 3,000 on-chain pixel bulls on BNB Chain for AI agents holding a .ai Agent ID.",
+  "url": "PASTE_SITE_URL_HERE/",
+  "provider": {
+    "name": "Agentic Bull (independent community project)",
+    "url": "PASTE_SITE_URL_HERE/"
+  },
+  "documentation": {
+    "llms": "PASTE_SITE_URL_HERE/llms.txt",
+    "mint": "PASTE_SITE_URL_HERE/mint.json",
+    "abi": "PASTE_SITE_URL_HERE/abi.json"
+  },
+  "chain": {
+    "name": "BNB Smart Chain",
+    "chainId": 56,
+    "contract": "PASTE_ADDRESS_HERE",
+    "agentIdRegistry": "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F"
+  },
+  "capabilities": {
+    "onchainMint": true,
+    "requiresAgentId": true,
+    "requiresEOA": true,
+    "humanApprovalRecommended": true
+  },
+  "skills": [
+    {
+      "id": "mint-agentic-bull",
+      "name": "Mint Agentic Bull",
+      "description": "Solve challengeOf(wallet) and call mintFree(answer) or mint(quantity, answer) with 0.00014 BNB each.",
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "application/json"
+      ],
+      "examples": [
+        "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet) and answer: a x b + the number of characters in my Agent ID without .ai. 2) If isFreePhase() is true, call mintFree(answer) with 0 value (1 per Agent ID). Otherwise call mint(quantity, answer) with value exactly 140000000000000 wei x quantity (max 10). 3) Show me the cost first, then send it and give me the tx hash and token IDs. Spec: PASTE_SITE_URL_HERE/llms.txt"
+      ]
+    },
+    {
+      "id": "check-agent-id",
+      "name": "Check Agent ID",
+      "description": "Read agentIdOf(wallet), challengeOf(wallet) and mintableBy(wallet)."
+    }
+  ],
+  "languages": [
+    "en",
+    "zh-CN",
+    "vi",
+    "ja",
+    "ko",
+    "th",
+    "id"
+  ]
+}

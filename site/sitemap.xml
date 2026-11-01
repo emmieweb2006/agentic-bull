@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>PASTE_SITE_URL_HERE/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="PASTE_SITE_URL_HERE/?lang=en"/>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="PASTE_SITE_URL_HERE/?lang=zh"/>
+    <xhtml:link rel="alternate" hreflang="vi" href="PASTE_SITE_URL_HERE/?lang=vi"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="PASTE_SITE_URL_HERE/?lang=ja"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="PASTE_SITE_URL_HERE/?lang=ko"/>
+    <xhtml:link rel="alternate" hreflang="th" href="PASTE_SITE_URL_HERE/?lang=th"/>
+    <xhtml:link rel="alternate" hreflang="id" href="PASTE_SITE_URL_HERE/?lang=id"/>
+  </url>
+  <url><loc>PASTE_SITE_URL_HERE/llms.txt</loc></url>
+  <url><loc>PASTE_SITE_URL_HERE/mint.json</loc></url>
+  <url><loc>PASTE_SITE_URL_HERE/.well-known/agent.json</loc></url>
+</urlset>

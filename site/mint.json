@@ -1,0 +1,116 @@
+{
+  "name": "Agentic Bull",
+  "chain": "BNB Smart Chain",
+  "chainId": 56,
+  "contract": "PASTE_ADDRESS_HERE",
+  "standard": "ERC-721",
+  "agentIdRegistry": "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F",
+  "payout": "0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a",
+  "rpc": [
+    "https://bsc-dataseed.binance.org",
+    "https://bsc-rpc.publicnode.com"
+  ],
+  "abi": "PASTE_SITE_URL_HERE/abi.json",
+  "docs": "PASTE_SITE_URL_HERE/llms.txt",
+  "supply": {
+    "max": 3000,
+    "free": 1000,
+    "reserve": 5
+  },
+  "price": {
+    "wei": "140000000000000",
+    "bnb": "0.00014"
+  },
+  "limits": {
+    "freePerWallet": 1,
+    "freePerAgentId": 1,
+    "paidPerWallet": 10,
+    "paidPerAgentId": 10,
+    "maxQuantityPerTx": 10
+  },
+  "requirements": [
+    "Sender must be an EOA (msg.sender == tx.origin)",
+    "Sender must hold a .ai Agent ID (registry.handleOf(sender) != \"\")",
+    "block.timestamp >= MINT_START()"
+  ],
+  "challenge": {
+    "read": "challengeOf(address) returns (string question, uint256 a, uint256 b)",
+    "handle": "agentIdOf(address) returns the Agent ID without .ai, e.g. \"webs\"",
+    "answer": "a * b + byteLength(handle)",
+    "example": {
+      "a": 7,
+      "b": 13,
+      "handle": "webs",
+      "answer": 95
+    }
+  },
+  "steps": [
+    {
+      "step": 1,
+      "do": "Check chain ID is 56"
+    },
+    {
+      "step": 2,
+      "do": "Call mintableBy(wallet); must be > 0"
+    },
+    {
+      "step": 3,
+      "do": "Compute answer from challengeOf(wallet) and agentIdOf(wallet)"
+    },
+    {
+      "step": 4,
+      "do": "If isFreePhase() is true",
+      "call": "mintFree(uint256 answer)",
+      "selector": "0xa4146733",
+      "value": "0"
+    },
+    {
+      "step": 5,
+      "do": "Else",
+      "call": "mint(uint256 quantity, uint256 answer)",
+      "selector": "0x1b2ef1ca",
+      "value": "140000000000000 * quantity"
+    },
+    {
+      "step": 6,
+      "do": "Read the Minted event: token IDs are firstId .. firstId + qty - 1",
+      "topic0": "0x1ab2aa08e6e1dd21ff6d93a042e2ecc7077e108575bbdf2e818891c28ff60426"
+    }
+  ],
+  "views": {
+    "isFreePhase": "0xf2c03c87",
+    "totalMinted": "0xa2309ff8",
+    "freeMinted": "0xd10a1a2b",
+    "mintableBy": "0x1d2e6765",
+    "challengeOf": "0x6cc23c5d",
+    "agentIdOf": "0xe9c9ec73",
+    "MINT_START": "0xc6374d0c",
+    "tierRemaining": "0xa8890f40",
+    "tokenURI": "0xc87b56dd"
+  },
+  "reverts": [
+    "Mint not started",
+    "EOA only",
+    "Agent ID required",
+    "Wrong answer",
+    "Free mint over",
+    "Free limit: wallet",
+    "Free limit: Agent ID",
+    "Free phase active",
+    "Bad quantity",
+    "Sold out",
+    "Wallet limit",
+    "Agent ID limit",
+    "Wrong payment",
+    "Payout failed"
+  ],
+  "prompt": {
+    "en": "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet) and answer: a x b + the number of characters in my Agent ID without .ai. 2) If isFreePhase() is true, call mintFree(answer) with 0 value (1 per Agent ID). Otherwise call mint(quantity, answer) with value exactly 140000000000000 wei x quantity (max 10). 3) Show me the cost first, then send it and give me the tx hash and token IDs. Spec: PASTE_SITE_URL_HERE/llms.txt",
+    "zh-CN": "请在 BNB Chain（链 ID 56）上帮我铸造 Agentic Bull。合约 PASTE_ADDRESS_HERE。我的钱包需要拥有 .ai Agent ID。1）调用 challengeOf(我的钱包)，答案为：a x b + 我的 Agent ID 去掉 .ai 后的字符数。2）如果 isFreePhase() 为 true，调用 mintFree(answer)，value 为 0（每个 Agent ID 1 个）。否则调用 mint(quantity, answer)，value 必须正好是 140000000000000 wei x quantity（最多 10 个）。3）先告诉我费用，然后发送交易，并给我交易哈希和代币 ID。说明：PASTE_SITE_URL_HERE/llms.txt",
+    "vi": "Hãy mint Agentic Bull cho tôi trên BNB Chain (chain ID 56). Hợp đồng PASTE_ADDRESS_HERE. Ví của tôi cần có Agent ID .ai. 1) Gọi challengeOf(víCủaTôi) và trả lời: a x b + số ký tự trong Agent ID của tôi, không tính .ai. 2) Nếu isFreePhase() là true, gọi mintFree(answer) với value 0 (1 mỗi Agent ID). Nếu không, gọi mint(quantity, answer) với value đúng bằng 140000000000000 wei x quantity (tối đa 10). 3) Cho tôi xem chi phí trước, rồi gửi giao dịch và đưa tôi tx hash cùng token ID. Đặc tả: PASTE_SITE_URL_HERE/llms.txt",
+    "ja": "BNB Chain（チェーン ID 56）で Agentic Bull をミントしてください。コントラクト PASTE_ADDRESS_HERE。私のウォレットには .ai Agent ID が必要です。1）challengeOf(私のウォレット) を呼び出し、答えは a x b + .ai を除いた私の Agent ID の文字数です。2）isFreePhase() が true なら、value 0 で mintFree(answer) を呼び出します（Agent ID ごとに 1 体）。そうでなければ、value をちょうど 140000000000000 wei x quantity にして mint(quantity, answer) を呼び出します（最大 10）。3）まず費用を見せてから送信し、tx ハッシュとトークン ID を教えてください。仕様：PASTE_SITE_URL_HERE/llms.txt",
+    "ko": "BNB Chain(체인 ID 56)에서 Agentic Bull을 민팅해 줘. 컨트랙트 PASTE_ADDRESS_HERE. 내 지갑에는 .ai Agent ID가 있어야 해. 1) challengeOf(내지갑)을 호출하고 답은: a x b + .ai를 뺀 내 Agent ID의 글자 수. 2) isFreePhase()가 true이면 value 0으로 mintFree(answer)를 호출해(Agent ID당 1개). 아니면 value를 정확히 140000000000000 wei x quantity로 해서 mint(quantity, answer)를 호출해(최대 10개). 3) 먼저 비용을 보여 주고, 그다음 전송한 뒤 tx 해시와 토큰 ID를 알려 줘. 사양: PASTE_SITE_URL_HERE/llms.txt",
+    "th": "ช่วยมินต์ Agentic Bull ให้ฉันบน BNB Chain (chain ID 56) สัญญา PASTE_ADDRESS_HERE กระเป๋าของฉันต้องมี Agent ID .ai 1) เรียก challengeOf(กระเป๋าของฉัน) แล้วตอบ: a x b + จำนวนตัวอักษรใน Agent ID ของฉันโดยไม่รวม .ai 2) ถ้า isFreePhase() เป็น true ให้เรียก mintFree(answer) ด้วย value 0 (1 ตัวต่อ Agent ID) ถ้าไม่ใช่ ให้เรียก mint(quantity, answer) ด้วย value เท่ากับ 140000000000000 wei x quantity พอดี (สูงสุด 10) 3) แสดงค่าใช้จ่ายให้ฉันดูก่อน แล้วจึงส่ง และบอก tx hash กับ token ID ให้ฉัน สเปก: PASTE_SITE_URL_HERE/llms.txt",
+    "id": "Mint Agentic Bull untuk saya di BNB Chain (chain ID 56). Kontrak PASTE_ADDRESS_HERE. Dompet saya harus punya Agent ID .ai. 1) Panggil challengeOf(dompetSaya) dan jawab: a x b + jumlah karakter Agent ID saya tanpa .ai. 2) Jika isFreePhase() bernilai true, panggil mintFree(answer) dengan value 0 (1 per Agent ID). Jika tidak, panggil mint(quantity, answer) dengan value tepat 140000000000000 wei x quantity (maks 10). 3) Tunjukkan biayanya dulu, lalu kirim dan berikan tx hash serta token ID. Spesifikasi: PASTE_SITE_URL_HERE/llms.txt"
+  }
+}
