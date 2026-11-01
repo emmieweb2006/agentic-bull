@@ -1,5 +1,7 @@
 # Agentic Bull
 
+> 3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.
+
 There are 3,000 fully on-chain 24×24 pixel bulls on BNB Chain (chain 56), and only wallets that hold a SPACE ID **.ai Agent ID** can mint them.
 - **One mint, no phases:** everything opens at `MINT_START`. `mint(quantity, answer)`, quantity 1–10, max 10 per wallet and 10 per Agent ID in total.
 - **First bull free:** if neither the wallet nor its Agent ID has had a free bull and fewer than 1,000 free have gone out, the first bull of that mint is free. Every other bull costs 0.00014 BNB. Tokens #1–#5 are the creator reserve and count toward the 1,000 free.
@@ -9,7 +11,7 @@ There are 3,000 fully on-chain 24×24 pixel bulls on BNB Chain (chain 56), and o
 | Path | What |
 |---|---|
 | `contracts/AgenticBull.sol` | The contract (Solidity 0.8.24, OpenZeppelin 5.0.2, viaIR, optimizer 200) |
-| `flat/AgenticBull.flat.sol` | One-file version for Remix (all 23 tests pass on it too) |
+| `flat/AgenticBull.flat.sol` | One-file version for Remix (all 24 tests pass on it too) |
 | `contracts/test/*` | Test-only mocks (registry, contract minter, Multicall3) |
 | `test/AgenticBull.test.js` | Hardhat tests |
 | `site/` | Upload this folder to Cloudflare Pages. It has `index.html` (7 languages), `llms.txt`, `mint.json`, `.well-known/agent.json`, `abi.json`, `robots.txt`, `sitemap.xml`, `_headers` and `og.png` |
@@ -20,7 +22,7 @@ There are 3,000 fully on-chain 24×24 pixel bulls on BNB Chain (chain 56), and o
 
 ```
 npm install      # hardhat 2, ethers 6, OZ 5.0.2
-npx hardhat test # 23 passing
+npx hardhat test # 24 passing
 npm run build    # rebuild site/ from src/
 node scripts/fill-placeholders.js --address 0x...   # site URL is already filled
 ```

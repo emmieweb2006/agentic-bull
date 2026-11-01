@@ -122,6 +122,11 @@ describe("AgenticBull", function () {
       expect(j.image.startsWith("data:image/svg+xml;base64,")).to.equal(true);
       expect(Buffer.from(j.image.split(",")[1], "base64").toString()).to.equal(ART.svg(0x01020003n, 4));
     });
+    it("contractURI has the exact collection description", async function () {
+      const { bull } = await loadFixture(deployFixture);
+      const j = decode(await bull.contractURI());
+      expect(j.description).to.equal("3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.");
+    });
     it("tokenURI: base64 JSON, 480x480 crispEdges 24x24 SVG, 7 attributes, exact description", async function () {
       const { bull } = await loadFixture(deployFixture);
       const j = decode(await bull.tokenURI(1));

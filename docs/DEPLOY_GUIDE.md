@@ -31,7 +31,7 @@ The site works before the contract exists: it shows "Contract address coming soo
 
 ## 2. Compile in Remix (MetaMask mobile browser)
 1. In MetaMask, tap **Browser** (the bottom bar or the ☰ menu) and open **remix.ethereum.org**. If the layout is crowded, tap ⋮ → **Desktop site**.
-2. In **File explorer**, tap **+** (new file) and name it `AgenticBull.sol`. Paste the entire contents of `flat/AgenticBull.flat.sol` unchanged (all 23 tests pass against this exact file).
+2. In **File explorer**, tap **+** (new file) and name it `AgenticBull.sol`. Paste the entire contents of `flat/AgenticBull.flat.sol` unchanged (all 24 tests pass against this exact file).
    - Tip: open the file in a phone text-editor app, then Select All → Copy.
 3. Open **Solidity compiler** (the "S" icon):
    - **Compiler:** `0.8.24+commit.e11b9ed9`.
@@ -40,7 +40,7 @@ The site works before the contract exists: it shows "Contract address coming soo
      - **EVM version:** **cancun**.
      - **viaIR:** ON. If there's no checkbox, choose "Use configuration file" and set `"viaIR": true`. The settings block should be: `{"optimizer":{"enabled":true,"runs":200},"viaIR":true,"evmVersion":"cancun"}`.
 4. Tap **Compile AgenticBull.sol** and wait for the green tick. Pick the **AgenticBull** contract in the dropdown, not ERC721.
-   - Expect a runtime of about 21.4 KB (21,366 bytes), below the 24,576-byte limit.
+   - Expect a runtime of about 20.8 KB (20,763 bytes), below the 24,576-byte limit.
    - If you get "contract code size exceeds" or a stack-too-deep error, viaIR isn't on.
 
 ## 3. Deploy

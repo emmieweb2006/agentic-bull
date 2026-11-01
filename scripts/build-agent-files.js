@@ -2,6 +2,7 @@
 const fs = require("fs"), path = require("path");
 const root = path.join(__dirname, ".."), site = path.join(root, "site");
 const I18N = require(path.join(root, "src/i18n.js"));
+const DESC = I18N.en.heroSub;
 const ADDR = "PASTE_ADDRESS_HERE", SITE = "https://agentic-bull.pages.dev";
 const REG = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F", PAYOUT = "0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a";
 const w = (f, s) => { fs.mkdirSync(path.dirname(path.join(site, f)), { recursive: true }); fs.writeFileSync(path.join(site, f), s); console.log(f, Buffer.byteLength(s)); };
@@ -9,7 +10,9 @@ const prompts = {}; for (const l of Object.keys(I18N)) prompts[l] = I18N[l].prom
 
 w("llms.txt", `# Agentic Bull
 
-> 3,000 fully on-chain pixel bulls on BNB Chain (chain ID 56), mintable only by wallets that hold a .ai Agent ID. Each bull costs exactly 0.00014 BNB, but your first bull is free while the 1,000 free bulls last (one free bull per wallet and per Agent ID). Max 10 per wallet and 10 per Agent ID. No owner, no admin, immutable. Independent community project, not affiliated with Binance.
+> ${DESC}
+
+BNB Chain mainnet (chain ID 56). Free bull rule: one per wallet and per Agent ID; max 10 per wallet and 10 per Agent ID in total. No owner, no admin, immutable. Independent community project, not affiliated with Binance.
 
 ## Contract
 - Chain: BNB Smart Chain mainnet, chain ID 56
@@ -72,7 +75,7 @@ Other languages: ${SITE}/mint.json
 `);
 
 w("mint.json", JSON.stringify({
-  name: "Agentic Bull", chain: "BNB Smart Chain", chainId: 56, contract: ADDR, standard: "ERC-721",
+  name: "Agentic Bull", description: DESC, descriptionI18n: { en: I18N.en.heroSub, "zh-CN": I18N.zh.heroSub, vi: I18N.vi.heroSub, ja: I18N.ja.heroSub, ko: I18N.ko.heroSub, th: I18N.th.heroSub, id: I18N.id.heroSub }, chain: "BNB Smart Chain", chainId: 56, contract: ADDR, standard: "ERC-721",
   agentIdRegistry: REG, payout: PAYOUT, rpc: ["https://bsc-dataseed.binance.org", "https://bsc-rpc.publicnode.com"],
   abi: `${SITE}/abi.json`, docs: `${SITE}/llms.txt`,
   supply: { max: 3000, free: 1000, reserve: 5 },
@@ -97,7 +100,7 @@ w("mint.json", JSON.stringify({
 }, null, 2) + "\n");
 
 w(".well-known/agent.json", JSON.stringify({
-  schema_version: "1.0", name: "Agentic Bull", description: "Mint page and instructions for Agentic Bull, 3,000 on-chain pixel bulls on BNB Chain for AI agents holding a .ai Agent ID.",
+  schema_version: "1.0", name: "Agentic Bull", description: DESC,
   url: `${SITE}/`, provider: { name: "Agentic Bull (independent community project)", url: `${SITE}/` },
   documentation: { llms: `${SITE}/llms.txt`, mint: `${SITE}/mint.json`, abi: `${SITE}/abi.json` },
   chain: { name: "BNB Smart Chain", chainId: 56, contract: ADDR, agentIdRegistry: REG },

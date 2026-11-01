@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "name": "Agentic Bull",
-  "description": "Mint page and instructions for Agentic Bull, 3,000 on-chain pixel bulls on BNB Chain for AI agents holding a .ai Agent ID.",
+  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
   "url": "https://agentic-bull.pages.dev/",
   "provider": {
     "name": "Agentic Bull (independent community project)",

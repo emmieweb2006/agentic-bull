@@ -1,6 +1,8 @@
 # Agentic Bull
 
-> 3,000 fully on-chain pixel bulls on BNB Chain (chain ID 56), mintable only by wallets that hold a .ai Agent ID. Each bull costs exactly 0.00014 BNB, but your first bull is free while the 1,000 free bulls last (one free bull per wallet and per Agent ID). Max 10 per wallet and 10 per Agent ID. No owner, no admin, immutable. Independent community project, not affiliated with Binance.
+> 3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.
+
+BNB Chain mainnet (chain ID 56). Free bull rule: one per wallet and per Agent ID; max 10 per wallet and 10 per Agent ID in total. No owner, no admin, immutable. Independent community project, not affiliated with Binance.
 
 ## Contract
 - Chain: BNB Smart Chain mainnet, chain ID 56

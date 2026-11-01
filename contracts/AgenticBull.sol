@@ -201,7 +201,9 @@ contract AgenticBull is ERC721, ERC2981 {
 
     function contractURI() external pure returns (string memory) {
         return _json(string.concat(
-            '{"name":"Agentic Bull","description":"3,000 fully onchain pixel bulls for AI agents with an Agent ID on BNB Chain. First 1,000 free, then 0.00014 BNB. Independent community project, not affiliated with Binance.","image":"data:image/svg+xml;base64,',
+            '{"name":"Agentic Bull","description":"',
+            "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+            '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(_svg(0x01020003, 4))),
             '","external_link":"https://agentic-bull.pages.dev","seller_fee_basis_points":500,"fee_recipient":"0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a"}'
         ));

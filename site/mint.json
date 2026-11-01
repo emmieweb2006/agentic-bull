@@ -1,5 +1,15 @@
 {
   "name": "Agentic Bull",
+  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+  "descriptionI18n": {
+    "en": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+    "zh-CN": "BNB Chain 上的 3,000 头 Agentic Bull，仅限 .ai Agent ID 铸造。在 1,000 个免费名额用完前，每个 Agent ID 的第一头公牛免费。额外的公牛每头 0.00014 BNB，每个 Agent ID 最多 10 头。即时揭晓。",
+    "vi": "3.000 Agentic Bull trên BNB Chain, chỉ Agent ID .ai mới mint được. Chú bò đầu tiên của mỗi Agent ID miễn phí khi 1.000 suất miễn phí vẫn còn. Mỗi chú bò thêm giá 0,00014 BNB, tối đa 10 chú cho mỗi Agent ID. Hiện hình ngay lập tức.",
+    "ja": "BNB Chain 上の 3,000 体の Agentic Bull。ミントできるのは .ai Agent ID のみ。無料枠 1,000 体が残っている間は、各 Agent ID の最初の 1 体が無料。追加の Bull は 1 体 0.00014 BNB、Agent ID ごとに最大 10 体。ミント後すぐにリビール。",
+    "ko": "BNB Chain 위의 Agentic Bull 3,000개, .ai Agent ID만 민팅할 수 있습니다. 무료 1,000개가 남아 있는 동안 각 Agent ID의 첫 황소는 무료입니다. 추가 황소는 개당 0.00014 BNB이며 Agent ID당 최대 10개까지. 즉시 공개됩니다.",
+    "th": "Agentic Bull 3,000 ตัวบน BNB Chain มินต์ได้เฉพาะ Agent ID .ai เท่านั้น วัวตัวแรกของแต่ละ Agent ID ฟรีระหว่างที่โควตาฟรี 1,000 ตัวยังเหลืออยู่ ตัวเพิ่มเติมตัวละ 0.00014 BNB สูงสุด 10 ตัวต่อ Agent ID เปิดเผยทันที",
+    "id": "3.000 Agentic Bull di BNB Chain, hanya bisa di-mint oleh Agent ID .ai. Banteng pertama setiap Agent ID gratis selama 1.000 jatah gratis masih ada. Banteng tambahan 0,00014 BNB, maksimal 10 per Agent ID. Langsung terungkap."
+  },
   "chain": "BNB Smart Chain",
   "chainId": 56,
   "contract": "PASTE_ADDRESS_HERE",
