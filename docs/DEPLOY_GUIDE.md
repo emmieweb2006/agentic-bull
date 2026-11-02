@@ -1,5 +1,8 @@
 # Agentic Bull — deploy guide (phone only)
 
+> **Deployed:** Agentic Bull is live at `0xcd4472Af68801DE87E970A333C71da5d12E825A3` on BNB Chain (tx `0x30cc04a50ff0b162b43634331cf6ffa4bc85dd5147dd206f05837c4653ebd3b7`), deployed through the CREATE2 factory with mintStart 1793707200 and verified on Sourcify (exact match). The steps below are kept for reference.
+
+
 Everything below works from a phone: the **MetaMask mobile app** (its built-in browser) for Remix and deploying, plus the phone's normal browser for Cloudflare. Nobody will ever need your private key or seed phrase, me included. Never paste one anywhere, and never give one to anyone.
 
 **Times in this guide:** mint opens **Tue 3 Nov 2026, 20:00 Beijing** (13:00 WAT, 12:00 UTC). The unix time is **`1793707200`**.

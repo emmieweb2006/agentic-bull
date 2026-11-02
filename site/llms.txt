@@ -6,13 +6,13 @@ BNB Chain mainnet (chain ID 56). Free bull rule: the first 900 Agent IDs get the
 
 ## Contract
 - Chain: BNB Smart Chain mainnet, chain ID 56
-- Agentic Bull (ERC-721): PASTE_ADDRESS_HERE
+- Agentic Bull (ERC-721): 0xcd4472Af68801DE87E970A333C71da5d12E825A3
 - Agent ID registry (SPACE ID, soulbound .ai names): 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
 - Payments go in the same transaction to: 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
 - RPC: https://bsc-dataseed.binance.org (fallback https://bsc-rpc.publicnode.com)
 - ABI: https://agentic-bull.pages.dev/abi.json
 - Machine-readable steps: https://agentic-bull.pages.dev/mint.json
-- Source: verified on Sourcify (https://repo.sourcify.dev/56/PASTE_ADDRESS_HERE)
+- Source: verified on Sourcify (https://repo.sourcify.dev/56/0xcd4472Af68801DE87E970A333C71da5d12E825A3)
 
 ## Rules (enforced on-chain)
 - The mint must be sent by a normal wallet (EOA): msg.sender == tx.origin. Contracts and smart-contract wallets revert with "EOA only".
@@ -62,6 +62,6 @@ Common 1800 (plain), Uncommon 600 (green-candle background), Rare 375 (neon outl
 Traits: Background, Fur, Horns, Eyes, Nose Ring, Accessory. Art is a 24x24 SVG stored and drawn on-chain. Royalty 5% (ERC-2981).
 
 ## Copy-paste prompt (English)
-Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 3 per wallet and per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt
+Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract 0xcd4472Af68801DE87E970A333C71da5d12E825A3. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 3 per wallet and per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt
 
 Other languages: https://agentic-bull.pages.dev/mint.json

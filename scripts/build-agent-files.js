@@ -3,7 +3,7 @@ const fs = require("fs"), path = require("path");
 const root = path.join(__dirname, ".."), site = path.join(root, "site");
 const I18N = require(path.join(root, "src/i18n.js"));
 const DESC = I18N.en.heroSub;
-const ADDR = "PASTE_ADDRESS_HERE", SITE = "https://agentic-bull.pages.dev";
+const ADDR = "0xcd4472Af68801DE87E970A333C71da5d12E825A3", SITE = "https://agentic-bull.pages.dev";
 const REG = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F", PAYOUT = "0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a";
 const w = (f, s) => { fs.mkdirSync(path.dirname(path.join(site, f)), { recursive: true }); fs.writeFileSync(path.join(site, f), s); console.log(f, Buffer.byteLength(s)); };
 const prompts = {}; for (const l of Object.keys(I18N)) prompts[l] = I18N[l].prompt.split("{addr}").join(ADDR).split("{site}").join(SITE);

@@ -1,0 +1,28 @@
+status 1 block 131187370 gasUsed 5017416 gasPrice 75355237 fee BNB 0.000378088571807592 from 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a to 0x4e59b44847b379578588920cA78FbF26c0B4956C
+differing byte offsets 8 7995,7996,7997,7998,10092,10093,10094,10095
+runtime bytes 20940 matches compiled: false
+totalMinted 5
+freeMinted 5
+MINT_START 1793707200
+FREE_CAP 905
+PRICE 280000000000000
+PRICE_THIRD 350000000000000
+MAX_PER_WALLET 3
+MAX_PER_AGENT 3
+name Agentic Bull
+symbol BULL
+registry 0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F
+ownerOf 1 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
+ownerOf 2 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
+ownerOf 3 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
+ownerOf 4 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
+ownerOf 5 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a
+contractURI {
+ "name": "Agentic Bull",
+ "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.",
+ "image": "<data…>",
+ "external_link": "https://agentic-bull.pages.dev",
+ "seller_fee_basis_points": 500,
+ "fee_recipient": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a"
+}
+desc exact: true

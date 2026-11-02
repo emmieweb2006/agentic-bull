@@ -1,0 +1,67 @@
+{
+  "success": true,
+  "data": {
+    "requestId": "bfa9275c61244fe3bf5470fe401b10e2",
+    "parsedTx": {
+      "transactionType": "ContractInteraction",
+      "action": "0x00000000",
+      "contractAddress": "0x4e59b44847b379578588920cA78FbF26c0B4956C",
+      "contractAddressList": null,
+      "transactionTypeTranslationKey": null
+    },
+    "simulationResult": {
+      "gasTokenFromData": 0,
+      "balanceChanges": [
+        {
+          "contractAddress": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
+          "change": 1,
+          "owner": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a",
+          "tokenType": "Erc721",
+          "tokenId": "0x0000000000000000000000000000000000000000000000000000000000000001"
+        },
+        {
+          "contractAddress": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
+          "change": 1,
+          "owner": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a",
+          "tokenType": "Erc721",
+          "tokenId": "0x0000000000000000000000000000000000000000000000000000000000000002"
+        },
+        {
+          "contractAddress": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
+          "change": 1,
+          "owner": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a",
+          "tokenType": "Erc721",
+          "tokenId": "0x0000000000000000000000000000000000000000000000000000000000000003"
+        },
+        {
+          "contractAddress": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
+          "change": 1,
+          "owner": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a",
+          "tokenType": "Erc721",
+          "tokenId": "0x0000000000000000000000000000000000000000000000000000000000000004"
+        },
+        {
+          "contractAddress": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
+          "change": 1,
+          "owner": "0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a",
+          "tokenType": "Erc721",
+          "tokenId": "0x0000000000000000000000000000000000000000000000000000000000000005"
+        }
+      ],
+      "simulationErrorDetail": null,
+      "simulationCode": "000000000",
+      "preCheckCode": "",
+      "authorityChanges": [],
+      "allowanceChanges": []
+    },
+    "risks": {
+      "addresses": {},
+      "riskDetails": [],
+      "riskBehaviors": []
+    },
+    "tokenInfos": {},
+    "requireConfirmation": false,
+    "expiresAt": 1793598677618,
+    "gasLimit": 6120000
+  }
+}

@@ -27,6 +27,19 @@ npm run build    # rebuild site/ from src/
 node scripts/fill-placeholders.js --address 0x...   # site URL is already filled
 ```
 
-The site URL is already set to https://agentic-bull.pages.dev (in the contract, the site and the agent files). `site/` still contains three placeholders: `PASTE_ADDRESS_HERE`, `ELEMENT_LINK_HERE` and `OKX_LINK_HERE`.
+The site URL is already set to https://agentic-bull.pages.dev (in the contract, the site and the agent files). The contract address is filled in across `site/` and the agent files. `site/` still contains two placeholders: `ELEMENT_LINK_HERE` and `OKX_LINK_HERE`.
+
+## Deployed (BNB Chain mainnet, chain 56)
+
+| | |
+|---|---|
+| Contract | [`0xcd4472Af68801DE87E970A333C71da5d12E825A3`](https://bscscan.com/address/0xcd4472Af68801DE87E970A333C71da5d12E825A3) |
+| Deploy tx | [`0x30cc04a50ff0b162b43634331cf6ffa4bc85dd5147dd206f05837c4653ebd3b7`](https://bscscan.com/tx/0x30cc04a50ff0b162b43634331cf6ffa4bc85dd5147dd206f05837c4653ebd3b7) (block 131187370, 2 Nov 2026) |
+| Deployed via | Arachnid CREATE2 factory `0x4e59b44847b379578588920cA78FbF26c0B4956C`, salt `0x00…00`, from `0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a` |
+| Constructor | `mintStart = 1793707200` (Tue 3 Nov 2026, 20:00 Beijing time) |
+| Source | `flat/AgenticBull.flat.sol`, solc 0.8.24, optimizer 200, viaIR, cancun |
+| Sourcify | [exact match](https://repo.sourcify.dev/56/0xcd4472Af68801DE87E970A333C71da5d12E825A3) |
+| Verify inputs | `deploy/AgenticBull.standard-input.json` (BscScan Standard JSON), `deploy/AgenticBull.metadata.json` |
+| Site | https://agentic-bull.pages.dev |
 
 This is an independent community project and isn't affiliated with Binance or SPACE ID.

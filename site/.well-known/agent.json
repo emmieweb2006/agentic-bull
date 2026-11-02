@@ -15,7 +15,7 @@
   "chain": {
     "name": "BNB Smart Chain",
     "chainId": 56,
-    "contract": "PASTE_ADDRESS_HERE",
+    "contract": "0xcd4472Af68801DE87E970A333C71da5d12E825A3",
     "agentIdRegistry": "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F"
   },
   "capabilities": {
@@ -36,7 +36,7 @@
         "application/json"
       ],
       "examples": [
-        "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 3 per wallet and per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt"
+        "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract 0xcd4472Af68801DE87E970A333C71da5d12E825A3. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 3 per wallet and per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt"
       ]
     },
     {
