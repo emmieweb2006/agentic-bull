@@ -10,7 +10,7 @@ Computed with ethers from the compiled ABI (keccak256 of the signature, first 4 
 | `0x6cc23c5d` | `challengeOf(address)` | view | string question, uint256 a, uint256 b |
 | `0xe8a3d485` | `contractURI()` | pure | string |
 | `0x66be6071` | `costOf(address,uint256)` | view | uint256 |
-| `0x9858cf19` | `FREE_SUPPLY()` | view | uint256 |
+| `0x4dbd691f` | `FREE_CAP()` | view | uint256 |
 | `0x453322ed` | `freeAvailableTo(address)` | view | bool |
 | `0xd10a1a2b` | `freeMinted()` | view | uint256 |
 | `0xdd4d2233` | `freeMintedBy(address)` | view | uint256 |
@@ -28,6 +28,7 @@ Computed with ethers from the compiled ABI (keccak256 of the signature, first 4 
 | `0x6352211e` | `ownerOf(uint256)` | view | address |
 | `0x2806b8fb` | `paidMinted()` | view | uint256 |
 | `0x32da3d10` | `PAYOUT()` | view | address |
+| `0x7a1aa16c` | `PRICE_THIRD()` | view | uint256 |
 | `0x8d859f3e` | `PRICE()` | view | uint256 |
 | `0x7b103999` | `registry()` | view | address |
 | `0x9d2cc436` | `RESERVE()` | view | uint256 |

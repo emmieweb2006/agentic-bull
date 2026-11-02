@@ -1,7 +1,7 @@
 {
   "name": "agentic-bull",
   "version": "1.0.0",
-  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.",
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",

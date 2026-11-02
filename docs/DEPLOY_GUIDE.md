@@ -2,19 +2,19 @@
 
 Everything below works from a phone: the **MetaMask mobile app** (its built-in browser) for Remix and deploying, plus the phone's normal browser for Cloudflare. Nobody will ever need your private key or seed phrase, me included. Never paste one anywhere, and never give one to anyone.
 
-**Times in this guide:** mint opens **Thu 5 Nov 2026, 14:00 WAT** (13:00 UTC, 21:00 Beijing). The unix time is **`1793883600`**.
+**Times in this guide:** mint opens **Tue 3 Nov 2026, 20:00 Beijing** (13:00 WAT, 12:00 UTC). The unix time is **`1793707200`**.
 
 ---
 
 ## 0. What you need
-- MetaMask mobile, on **BNB Smart Chain** (chain 56), with about **0.003 BNB** for gas. The deploy uses about 5.2M gas. At BSC's usual 0.05–0.1 gwei that works out to roughly 0.0003–0.0006 BNB, but trust MetaMask's estimate over mine.
+- MetaMask mobile, on **BNB Smart Chain** (chain 56), with about **0.003 BNB** for gas. The deploy uses about 5.0M gas. At BSC's usual 0.05–0.1 gwei that works out to roughly 0.0003–0.0006 BNB, but trust MetaMask's estimate over mine.
 - Any wallet can deploy. It gets **no special powers**, because the contract has no owner or admin. Tokens #1–#5 always go to the hard-coded PAYOUT `0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a`, whoever deploys. Every BNB paid for a mint is forwarded to that same address in the same transaction.
 - The files from `agentic-bull.zip`:
   - `flat/AgenticBull.flat.sol`: the contract plus OpenZeppelin 5.0.2, in one file for Remix.
   - `site/`: the website and the agent files.
 - The site URL is already filled in everywhere (contract, site, agent files): **`https://agentic-bull.pages.dev`**. There is nothing to edit before compiling. The Cloudflare Pages project must therefore be named exactly **`agentic-bull`** (step 1).
 
-**How the mint works (no phases):** everything opens at `MINT_START`. There is one function, `mint(quantity, answer)`, quantity 1–10, max 10 per wallet and 10 per Agent ID in total. While the 1,000 free bulls last (the reserve #1–#5 counts toward them), the **first bull** of a wallet whose wallet and Agent ID never had a free one is free; every other bull costs 0.00014 BNB. `costOf(wallet, quantity)` returns the exact value to send.
+**How the mint works (no phases):** everything opens at `MINT_START`. There is one function, `mint(quantity, answer)`, quantity 1–3, max 3 per wallet and 3 per Agent ID in total (free + paid). Price goes by position, where position = max(bulls minted by the wallet, bulls minted by its Agent ID) + 1, 2, 3: **position 1** is free if neither the wallet nor its Agent ID ever had a free bull and `freeMinted() < 905` (otherwise 0.00028 BNB), **position 2** is 0.00028 BNB and **position 3** is 0.00035 BNB. The reserve #1–#5 counts toward the 905, which leaves **900 free bulls** for the public. `costOf(wallet, quantity)` returns the exact value to send.
 
 ---
 
@@ -31,7 +31,7 @@ The site works before the contract exists: it shows "Contract address coming soo
 
 ## 2. Compile in Remix (MetaMask mobile browser)
 1. In MetaMask, tap **Browser** (the bottom bar or the ☰ menu) and open **remix.ethereum.org**. If the layout is crowded, tap ⋮ → **Desktop site**.
-2. In **File explorer**, tap **+** (new file) and name it `AgenticBull.sol`. Paste the entire contents of `flat/AgenticBull.flat.sol` unchanged (all 24 tests pass against this exact file).
+2. In **File explorer**, tap **+** (new file) and name it `AgenticBull.sol`. Paste the entire contents of `flat/AgenticBull.flat.sol` unchanged (all 28 tests pass against this exact file).
    - Tip: open the file in a phone text-editor app, then Select All → Copy.
 3. Open **Solidity compiler** (the "S" icon):
    - **Compiler:** `0.8.24+commit.e11b9ed9`.
@@ -40,7 +40,7 @@ The site works before the contract exists: it shows "Contract address coming soo
      - **EVM version:** **cancun**.
      - **viaIR:** ON. If there's no checkbox, choose "Use configuration file" and set `"viaIR": true`. The settings block should be: `{"optimizer":{"enabled":true,"runs":200},"viaIR":true,"evmVersion":"cancun"}`.
 4. Tap **Compile AgenticBull.sol** and wait for the green tick. Pick the **AgenticBull** contract in the dropdown, not ERC721.
-   - Expect a runtime of about 20.8 KB (20,763 bytes), below the 24,576-byte limit.
+   - Expect a runtime of about 20.9 KB (20,940 bytes), below the 24,576-byte limit.
    - If you get "contract code size exceeds" or a stack-too-deep error, viaIR isn't on.
 
 ## 3. Deploy
@@ -48,7 +48,7 @@ The site works before the contract exists: it shows "Contract address coming soo
 2. Set **Environment** to **Injected Provider – MetaMask**, and check it shows **Custom (56) network** or BNB Smart Chain.
 3. Set **Contract** to **AgenticBull**.
 4. Turn on the **Verify Contract on Explorers** checkbox if you see one. It submits to Sourcify automatically.
-5. Next to **Deploy**, type the constructor argument `mintStart`: **`1793883600`**.
+5. Next to **Deploy**, type the constructor argument `mintStart`: **`1793707200`**.
    - To test with mint open now, use a time in the past. That cannot be changed later; the contract is immutable.
 6. Tap **Deploy**, check the gas in MetaMask, and **Confirm**. This is the only transaction you send yourself.
 7. Copy the deployed address from **Deployed Contracts**, or from the MetaMask activity → BscScan link. This is your **CONTRACT_ADDRESS**.
@@ -60,12 +60,13 @@ In Remix, under Deployed Contracts, tap these blue buttons:
 |---|---|
 | `totalMinted` | `5` |
 | `ownerOf(1)` | `0x5ec628f3…dd1a` |
-| `MINT_START` | `1793883600` |
-| `PRICE` | `140000000000000` |
+| `MINT_START` | `1793707200` |
+| `PRICE` / `PRICE_THIRD` | `280000000000000` / `350000000000000` |
+| `FREE_CAP` | `905` |
 | `registry` | `0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F` |
-| `freeMinted` | `5` (the reserve counts toward the 1,000 free) |
-| `MAX_PER_WALLET` / `MAX_PER_AGENT` | `10` / `10` |
-| `costOf(<any wallet with an Agent ID>, 3)` | `280000000000000` (first bull free + 2 × 0.00014 BNB) |
+| `freeMinted` | `5` (the reserve counts toward the 905, leaving 900 public free) |
+| `MAX_PER_WALLET` / `MAX_PER_AGENT` | `3` / `3` |
+| `costOf(<any wallet with an Agent ID>, 3)` | `630000000000000` (free + 0.00028 + 0.00035 BNB) |
 | `freeAvailableTo(<that wallet>)` | `true` |
 | `contractURI` | Starts `data:application/json;base64,`; decoded, `external_link` is `https://agentic-bull.pages.dev` |
 | `tokenURI(1)` | data URI; your bull #1 |
@@ -108,7 +109,7 @@ Then zip the **contents** of `site/` again.
 **Upload the new version:** in Cloudflare, Workers & Pages → `agentic-bull` → **Create deployment** → Production → upload the zip → **Save and deploy**.
 
 **Check these pages open:**
-- `SITE_URL/`, which should show the live counters `5 / 3,000` minted and **Free left: 995 / 1,000** (they refresh every 15 s)
+- `SITE_URL/`, which should show the live counters `5 / 3,000` minted and **Free left: 900 / 900** (they refresh every 15 s)
 - `SITE_URL/llms.txt`
 - `SITE_URL/mint.json`
 - `SITE_URL/.well-known/agent.json`
@@ -116,28 +117,28 @@ Then zip the **contents** of `site/` again.
 
 `_headers` gives `.json` and `.txt` files `Access-Control-Allow-Origin: *`, so agents can fetch them from anywhere.
 
-## 7. Test mint (after 5 Nov 14:00 WAT)
+## 7. Test mint (after Tue 3 Nov 13:00 WAT)
 - **Human test:**
   1. Open SITE_URL in MetaMask's (or Binance Wallet's) browser with a wallet that holds an Agent ID.
   2. Tap **Connect wallet**. The site switches you to chain 56.
   3. The site reads your challenge, fills in the answer and shows **Your first bull is FREE** (if this wallet and its Agent ID never had a free bull and free bulls are left).
-  4. Quantity 1 → the button says **Mint 1 free** (value 0, gas only). Quantity 3 → **Mint 3 for 0.00028 BNB**. Tap it.
+  4. The site also shows your price per bull (bull 1: free · bull 2: 0.00028 BNB · bull 3: 0.00035 BNB) and how many you can still mint (max 3). Quantity 1 → the button says **Mint 1 free** (value 0, gas only). Quantity 3 → **Mint 3 for 0.00063 BNB**. Tap it.
   5. Watch for **Minted! Token IDs: #6**, the bull appearing under **My Bulls**, and **Free left** dropping by one.
 - **Agent test:** give your Binance Agentic Wallet agent the prompt from the **Copy prompt** box on the site, or from `mint.json`. The 3 steps are: `challengeOf(myWallet)` → answer; `costOf(myWallet, quantity)` → value; `mint(quantity, answer)` with exactly that value.
 - **Wrong-path checks (all free, no gas spent):** the site runs a simulation before sending and shows the translated reason instead:
   - A wallet with no Agent ID → "This wallet has no .ai Agent ID."
   - A wrong value (e.g. a second mint sent with 0 BNB) → "The amount must be exactly the cost shown".
-  - More than 10 for a wallet or an Agent ID → "reached its 10 bulls".
-- **After the 1,000 free are gone:** the badge shows "All 1,000 free bulls are gone" and every bull costs 0.00014 BNB.
+  - More than 3 for a wallet or an Agent ID → "can have at most 3 bulls".
+- **After the 900 free are gone:** the badge shows "All 900 free bulls are gone"; bulls 1 and 2 cost 0.00028 BNB and bull 3 costs 0.00035 BNB (0.00091 BNB for 3).
 
 ## 8. Launch checklist
 - [ ] Cloudflare project `agentic-bull` created and the URL is exactly `https://agentic-bull.pages.dev` (step 1)
 - [ ] Remix: 0.8.24 · optimizer 200 · viaIR ON · cancun (step 2)
-- [ ] Constructor `mintStart` = `1793883600` (5 Nov 2026 14:00 WAT) (step 3)
+- [ ] Constructor `mintStart` = `1793707200` (Tue 3 Nov 2026 20:00 Beijing / 13:00 WAT / 12:00 UTC) (step 3)
 - [ ] Deploy confirmed on **chain 56**, not testnet; address copied
-- [ ] `totalMinted = 5`, `freeMinted = 5`, `ownerOf(1)` = PAYOUT, `costOf(wallet, 3)` = `280000000000000`, `contractURI` shows `https://agentic-bull.pages.dev` (step 4)
+- [ ] `totalMinted = 5`, `freeMinted = 5`, `ownerOf(1)` = PAYOUT, `costOf(wallet, 3)` = `630000000000000`, `contractURI` shows `https://agentic-bull.pages.dev` (step 4)
 - [ ] Sourcify verified ✅ (step 5)
-- [ ] Site address filled; new deployment uploaded; counters show `5 / 3,000` and `Free left: 995 / 1,000` (step 6)
+- [ ] Site address filled; new deployment uploaded; counters show `5 / 3,000` and `Free left: 900 / 900` (step 6)
 - [ ] `llms.txt`, `mint.json`, `.well-known/agent.json` and `abi.json` open with the real address
 - [ ] Share preview works: paste SITE_URL in an X draft and check the card shows `og.png`
 - [ ] Announce post ready, with the contract address, SITE_URL and mint time in WAT/UTC/Beijing
@@ -150,7 +151,7 @@ Then zip the **contents** of `site/` again.
   - Smart-contract wallets fail with "EOA only": ERC-4337 accounts, Safe, and wallets that use an EIP-7702 delegation. Since 7702, `tx.origin == msg.sender` still holds for a 7702-delegated EOA sending directly, but a sponsored or bundled call would not pass.
 - **The challenge is a speed bump, not security.** Anyone can compute `a*b + len(handle)` from public data, and the site does it for humans. The real gate is the Agent ID check.
 - **Randomness.** Traits use `prevrandao`/`blockhash`, as specified, so a validator could bias them in theory. That's fine for a free or cheap art drop.
-- **Free count.** The 1,000 free include the 5-bull creator reserve, so 995 free bulls go to the public. One free bull per wallet and per Agent ID, ever (a wallet that later changes its Agent ID does not get a second one).
+- **Free count.** `FREE_CAP` = 905 includes the 5-bull creator reserve, so 900 free bulls go to the public. One free bull per wallet and per Agent ID, ever, and only as a wallet's first bull (a wallet that later changes its Agent ID does not get a second one; its position is the higher of its own count and the new Agent ID's count).
 - **No admin, ever.** Nothing can be paused, changed or withdrawn. The contract never holds BNB, because every payment goes straight to PAYOUT. Royalty is 5% to PAYOUT via ERC-2981, where marketplaces honour it.
 
 ## Function selectors
@@ -163,7 +164,7 @@ Then zip the **contents** of `site/` again.
 | `0x6cc23c5d` | `challengeOf(address)` | view | string question, uint256 a, uint256 b |
 | `0xe8a3d485` | `contractURI()` | pure | string |
 | `0x66be6071` | `costOf(address,uint256)` | view | uint256 |
-| `0x9858cf19` | `FREE_SUPPLY()` | view | uint256 |
+| `0x4dbd691f` | `FREE_CAP()` | view | uint256 |
 | `0x453322ed` | `freeAvailableTo(address)` | view | bool |
 | `0xd10a1a2b` | `freeMinted()` | view | uint256 |
 | `0xdd4d2233` | `freeMintedBy(address)` | view | uint256 |
@@ -181,6 +182,7 @@ Then zip the **contents** of `site/` again.
 | `0x6352211e` | `ownerOf(uint256)` | view | address |
 | `0x2806b8fb` | `paidMinted()` | view | uint256 |
 | `0x32da3d10` | `PAYOUT()` | view | address |
+| `0x7a1aa16c` | `PRICE_THIRD()` | view | uint256 |
 | `0x8d859f3e` | `PRICE()` | view | uint256 |
 | `0x7b103999` | `registry()` | view | address |
 | `0x9d2cc436` | `RESERVE()` | view | uint256 |

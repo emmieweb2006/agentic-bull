@@ -5,7 +5,11 @@ const ART = require("../build/bull-art.js");
 
 const REG = "0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F";
 const PAYOUT = "0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a";
-const PRICE = 140000000000000n;
+const PRICE = 280000000000000n; // 0.00028 BNB
+const PRICE_THIRD = 350000000000000n; // 0.00035 BNB
+const FREE_QTY3 = 630000000000000n; // 0.00063 BNB = free + 0.00028 + 0.00035
+const PAID_QTY3 = 910000000000000n; // 0.00091 BNB = 0.00028 + 0.00028 + 0.00035
+const DESCRIPTION = "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.";
 const TIER_TOTALS = [1800, 600, 375, 150, 75];
 
 const decode = (uri) => JSON.parse(Buffer.from(uri.split(",")[1], "base64").toString());
@@ -53,16 +57,17 @@ async function liveFixture() {
   return f;
 }
 
-/** Gives away every free bull: 995 public first-bull-free mints of 1 (5 are the creator reserve). */
+/** Gives away every free bull: 900 public first-bull-free mints of 1 (the 5 creator reserve bulls count toward FREE_CAP = 905). */
 async function freeDoneFixture() {
   const f = await liveFixture();
-  const left = 1000 - Number(await f.bull.freeMinted());
+  const left = 905 - Number(await f.bull.freeMinted());
   const ws = await newWallets(left);
   const hs = ws.map((_, i) => "free" + i);
   await setHandles(f.reg, ws, hs);
   for (let i = 0; i < ws.length; i++) {
     await f.bull.connect(ws[i]).mint(1, await answerFor(f.bull, ws[i].address, hs[i]), { value: 0 });
   }
+  f.freeWallets = ws; f.freeHandles = hs;
   return f;
 }
 
@@ -89,8 +94,12 @@ describe("AgenticBull", function () {
       expect(await bull.registry()).to.equal(REG);
       expect(await bull.PAYOUT()).to.equal(PAYOUT);
       expect(await bull.MAX_SUPPLY()).to.equal(3000n);
-      expect(await bull.FREE_SUPPLY()).to.equal(1000n);
-      expect(await bull.PRICE()).to.equal(PRICE);
+      expect(await bull.FREE_CAP()).to.equal(905n);
+      expect(await bull.RESERVE()).to.equal(5n);
+      expect(await bull.PRICE()).to.equal(280000000000000n);
+      expect(await bull.PRICE_THIRD()).to.equal(350000000000000n);
+      expect(await bull.MAX_PER_WALLET()).to.equal(3n);
+      expect(await bull.MAX_PER_AGENT()).to.equal(3n);
       expect(await bull.name()).to.equal("Agentic Bull");
       const [recv, amt] = await bull.royaltyInfo(1, 10000);
       expect(recv).to.equal(PAYOUT);
@@ -108,9 +117,7 @@ describe("AgenticBull", function () {
       }
       const writes = bull.interface.fragments.filter((f) => f.type === "function" && !["view", "pure"].includes(f.stateMutability)).map((f) => f.name).sort();
       expect(writes).to.deep.equal(["approve", "mint", "safeTransferFrom", "safeTransferFrom", "setApprovalForAll", "transferFrom"].sort());
-      for (const gone of ["mintFree", "isFreePhase", "MAX_PAID_PER_WALLET", "MAX_PAID_PER_AGENT"]) expect(names).to.not.include(gone);
-      expect(await bull.MAX_PER_WALLET()).to.equal(10n);
-      expect(await bull.MAX_PER_AGENT()).to.equal(10n);
+      for (const gone of ["mintFree", "isFreePhase", "MAX_PAID_PER_WALLET", "MAX_PAID_PER_AGENT", "FREE_SUPPLY"]) expect(names).to.not.include(gone);
     });
     it("contractURI is on-chain JSON with the marketplace fields", async function () {
       const { bull } = await loadFixture(deployFixture);
@@ -125,7 +132,7 @@ describe("AgenticBull", function () {
     it("contractURI has the exact collection description", async function () {
       const { bull } = await loadFixture(deployFixture);
       const j = decode(await bull.contractURI());
-      expect(j.description).to.equal("3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.");
+      expect(j.description).to.equal(DESCRIPTION);
     });
     it("tokenURI: base64 JSON, 480x480 crispEdges 24x24 SVG, 7 attributes, exact description", async function () {
       const { bull } = await loadFixture(deployFixture);
@@ -166,7 +173,7 @@ describe("AgenticBull", function () {
       const addr = await bull.getAddress();
       const ans = await answerFor(bull, await caller.getAddress(), "contractagent");
       await expect(caller.tryMint(addr, 1, ans)).to.be.revertedWith("EOA only");
-      await expect(caller.tryMint(addr, 3, ans, { value: PRICE * 2n })).to.be.revertedWith("EOA only");
+      await expect(caller.tryMint(addr, 3, ans, { value: FREE_QTY3 })).to.be.revertedWith("EOA only");
     });
     it("challengeOf: a and b in 2..20, question wording, depends on wallet", async function () {
       const { bull, alice } = await loadFixture(deployFixture);
@@ -182,71 +189,6 @@ describe("AgenticBull", function () {
       const [q1] = await bull.challengeOf(alice.address);
       expect(q1).to.match(/^What is \d+ x \d+ plus/);
     });
-  });
-
-  describe("first bull free", function () {
-    it("a first mint of 1 is free with value 0; sending BNB for it reverts", async function () {
-      const { bull, alice } = await loadFixture(liveFixture);
-      const ans = await answerFor(bull, alice.address, "testagent");
-      expect(await bull.freeAvailableTo(alice.address)).to.equal(true);
-      expect(await bull.costOf(alice.address, 1)).to.equal(0n);
-      expect(await bull.mintableBy(alice.address)).to.equal(10n);
-      await expect(bull.connect(alice).mint(1, ans, { value: PRICE })).to.be.revertedWith("Wrong payment");
-      const before = await ethers.provider.getBalance(PAYOUT);
-      await expect(bull.connect(alice).mint(1, ans, { value: 0 })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 6n, 1n, true);
-      expect(await ethers.provider.getBalance(PAYOUT)).to.equal(before);
-      expect(await bull.freeMinted()).to.equal(6n);
-      expect(await bull.paidMinted()).to.equal(0n);
-      expect(await bull.freeMintedBy(alice.address)).to.equal(1n);
-      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
-      expect(await bull.mintableBy(alice.address)).to.equal(9n);
-    });
-    it("a first mint of 3 costs exactly 2 x PRICE (1 free + 2 paid)", async function () {
-      const { bull, alice } = await loadFixture(liveFixture);
-      const ans = await answerFor(bull, alice.address, "testagent");
-      expect(await bull.costOf(alice.address, 3)).to.equal(PRICE * 2n);
-      await expect(bull.connect(alice).mint(3, ans, { value: PRICE * 3n })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(3, ans, { value: PRICE })).to.be.revertedWith("Wrong payment");
-      const before = await ethers.provider.getBalance(PAYOUT);
-      await expect(bull.connect(alice).mint(3, ans, { value: PRICE * 2n })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 6n, 3n, true);
-      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(PRICE * 2n);
-      expect(await bull.freeMinted()).to.equal(6n);
-      expect(await bull.paidMinted()).to.equal(2n);
-      expect(await bull.mintedBy(alice.address)).to.equal(3n);
-      expect(await bull.balanceOf(alice.address)).to.equal(3n);
-    });
-    it("a second mint is fully paid", async function () {
-      const { bull, alice } = await loadFixture(liveFixture);
-      const ans = await answerFor(bull, alice.address, "testagent");
-      await bull.connect(alice).mint(1, ans);
-      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE);
-      expect(await bull.costOf(alice.address, 4)).to.equal(PRICE * 4n);
-      await expect(bull.connect(alice).mint(1, ans, { value: 0 })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(4, ans, { value: PRICE * 3n })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(4, ans, { value: PRICE * 4n })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 7n, 4n, false);
-      expect(await bull.freeMinted()).to.equal(6n);
-      expect(await bull.paidMinted()).to.equal(4n);
-    });
-    it("free is limited per wallet AND per Agent ID across wallets", async function () {
-      const { bull, reg, alice, carol, dave } = await loadFixture(liveFixture);
-      expect(await bull.freeAvailableTo(carol.address)).to.equal(true);
-      await mintAt(bull, alice, "testagent", 1);
-      expect(await bull.freeAvailableTo(carol.address)).to.equal(false); // carol shares alice's Agent ID
-      expect(await bull.costOf(carol.address, 2)).to.equal(PRICE * 2n);
-      const c = await answerFor(bull, carol.address, "testagent");
-      await expect(bull.connect(carol).mint(1, c, { value: 0 })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(carol).mint(2, c, { value: PRICE * 2n })).to.emit(bull, "Minted").withArgs(carol.address, "testagent", 7n, 2n, false);
-      expect(await bull.freeMintedBy(carol.address)).to.equal(0n);
-      // alice's wallet already had its free bull: a new Agent ID on it does not give another
-      await reg.setHandle(alice.address, "newhandle");
-      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
-      await expect(bull.connect(alice).mint(1, await answerFor(bull, alice.address, "newhandle"), { value: 0 })).to.be.revertedWith("Wrong payment");
-      // a fresh wallet + fresh Agent ID still gets one
-      await reg.setHandle(dave.address, "dave");
-      expect(await bull.freeAvailableTo(dave.address)).to.equal(true);
-      await mintAt(bull, dave, "dave", 1);
-      expect(await bull.freeMinted()).to.equal(7n);
-    });
     it("handle length counts UTF-8 bytes (bytes(handle).length)", async function () {
       const { bull, reg, dave } = await loadFixture(liveFixture);
       await reg.setHandle(dave.address, "agent007");
@@ -254,87 +196,198 @@ describe("AgenticBull", function () {
     });
   });
 
-  describe("after the 1,000 free bulls", function () {
-    it("free ends at exactly 1,000 (reserve included) and first mints are fully paid", async function () {
-      const { bull, alice, bob } = await loadFixture(freeDoneFixture);
-      expect(await bull.totalMinted()).to.equal(1000n);
-      expect(await bull.freeMinted()).to.equal(1000n);
-      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
-      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE);
-      expect(await bull.costOf(alice.address, 3)).to.equal(PRICE * 3n);
-      expect(await bull.mintableBy(alice.address)).to.equal(10n);
-      const ans = await answerFor(bull, alice.address, "testagent");
-      await expect(bull.connect(alice).mint(1, ans, { value: 0 })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(3, ans, { value: PRICE * 2n })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(3, ans, { value: PRICE * 3n })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 1001n, 3n, false);
-      expect(await bull.freeMinted()).to.equal(1000n);
-      expect(await bull.paidMinted()).to.equal(3n);
-      expect(await bull.freeMintedBy(alice.address)).to.equal(0n);
-      await mintAt(bull, bob, "bobagent", 1);
-      expect(await bull.freeMinted()).to.equal(1000n);
-    });
-    it("the last free bull goes to one first mint, then free is over", async function () {
-      const { bull, reg, alice, bob } = await loadFixture(liveFixture);
-      const ws = await newWallets(994);
-      const hs = ws.map((_, i) => "f" + i);
-      await setHandles(reg, ws, hs);
-      for (let i = 0; i < ws.length; i++) await bull.connect(ws[i]).mint(1, await answerFor(bull, ws[i].address, hs[i]));
-      expect(await bull.freeMinted()).to.equal(999n);
+  describe("price by position (free minter: free, 0.00028, 0.00035)", function () {
+    it("free minter, quantity 3 = 0.00063 BNB; costOf per quantity; every wei to PAYOUT", async function () {
+      const { bull, alice } = await loadFixture(liveFixture);
+      expect(await bull.freeAvailableTo(alice.address)).to.equal(true);
+      expect(await bull.mintableBy(alice.address)).to.equal(3n);
+      expect(await bull.costOf(alice.address, 1)).to.equal(0n);
       expect(await bull.costOf(alice.address, 2)).to.equal(PRICE);
-      await mintAt(bull, alice, "testagent", 2); // takes free #1000
-      expect(await bull.freeMinted()).to.equal(1000n);
-      expect(await bull.freeAvailableTo(bob.address)).to.equal(false);
-      expect(await bull.costOf(bob.address, 2)).to.equal(PRICE * 2n);
+      expect(await bull.costOf(alice.address, 3)).to.equal(FREE_QTY3);
+      expect(FREE_QTY3).to.equal(ethers.parseEther("0.00063"));
+      const ans = await answerFor(bull, alice.address, "testagent");
+      const before = await ethers.provider.getBalance(PAYOUT);
+      await expect(bull.connect(alice).mint(3, ans, { value: FREE_QTY3 })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 6n, 3n, true);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(FREE_QTY3);
+      expect(await ethers.provider.getBalance(await bull.getAddress())).to.equal(0n);
+      expect(await bull.freeMinted()).to.equal(6n);
+      expect(await bull.paidMinted()).to.equal(2n);
+      expect(await bull.freeMintedBy(alice.address)).to.equal(1n);
+      expect(await bull.mintedBy(alice.address)).to.equal(3n);
+      expect(await bull.mintedByAgent("testagent")).to.equal(3n);
+      expect(await bull.mintableBy(alice.address)).to.equal(0n);
+      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
+    });
+    it("free minter: mint 1 then 2 later gives the same 0.00063 BNB total (and 2 then 1)", async function () {
+      const { bull, alice, bob } = await loadFixture(liveFixture);
+      const before = await ethers.provider.getBalance(PAYOUT);
+      expect(await bull.costOf(alice.address, 1)).to.equal(0n);
+      await mintAt(bull, alice, "testagent", 1);
+      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE);
+      expect(await bull.costOf(alice.address, 2)).to.equal(PRICE + PRICE_THIRD);
+      await mintAt(bull, alice, "testagent", 2);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(FREE_QTY3);
+      expect(await bull.costOf(bob.address, 2)).to.equal(PRICE);
+      await mintAt(bull, bob, "bobagent", 2);
+      expect(await bull.costOf(bob.address, 1)).to.equal(PRICE_THIRD);
+      await mintAt(bull, bob, "bobagent", 1);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(FREE_QTY3 * 2n);
+      expect(await bull.freeMinted()).to.equal(7n);
+      expect(await bull.paidMinted()).to.equal(4n);
+    });
+    it("free is per wallet AND per Agent ID: a second wallet on the same Agent ID continues at its position", async function () {
+      const { bull, reg, alice, carol, dave } = await loadFixture(liveFixture);
+      expect(await bull.freeAvailableTo(carol.address)).to.equal(true);
+      await mintAt(bull, alice, "testagent", 1); // free, Agent ID testagent at position 1
+      expect(await bull.freeAvailableTo(carol.address)).to.equal(false); // carol shares alice's Agent ID
+      expect(await bull.costOf(carol.address, 1)).to.equal(PRICE); // position 2
+      expect(await bull.costOf(carol.address, 2)).to.equal(PRICE + PRICE_THIRD); // positions 2 and 3
+      expect(await bull.mintableBy(carol.address)).to.equal(2n);
+      const c = await answerFor(bull, carol.address, "testagent");
+      await expect(bull.connect(carol).mint(1, c, { value: 0 })).to.be.revertedWith("Wrong payment");
+      await expect(bull.connect(carol).mint(1, c, { value: PRICE })).to.emit(bull, "Minted").withArgs(carol.address, "testagent", 7n, 1n, false);
+      expect(await bull.freeMintedBy(carol.address)).to.equal(0n);
+      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE_THIRD); // agent at 2 > wallet at 1: position 3
+      // alice's wallet already had its free bull: a new Agent ID on it does not give another, and its count carries over
+      await reg.setHandle(alice.address, "newhandle");
+      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
+      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE); // wallet at 1, new Agent ID at 0: position 2
+      expect(await bull.mintableBy(alice.address)).to.equal(2n);
+      await expect(bull.connect(alice).mint(1, await answerFor(bull, alice.address, "newhandle"), { value: 0 })).to.be.revertedWith("Wrong payment");
+      // a fresh wallet + fresh Agent ID still gets one
+      await reg.setHandle(dave.address, "dave");
+      expect(await bull.freeAvailableTo(dave.address)).to.equal(true);
+      await mintAt(bull, dave, "dave", 1);
+      expect(await bull.freeMinted()).to.equal(7n);
     });
   });
 
-  describe("payment and limits", function () {
-    it("wrong value reverts", async function () {
+  describe("limits: 3 per wallet and 3 per Agent ID", function () {
+    it("quantity must be 1-3", async function () {
       const { bull, alice } = await loadFixture(liveFixture);
-      const ans = await answerFor(bull, alice.address, "testagent");
-      for (const v of [1n, PRICE - 1n, PRICE + 1n, PRICE * 3n, PRICE * 2n - 1n, PRICE * 2n + 1n]) {
-        await expect(bull.connect(alice).mint(3, ans, { value: v })).to.be.revertedWith("Wrong payment");
-      }
-      await expect(bull.connect(alice).mint(1, ans, { value: 1n })).to.be.revertedWith("Wrong payment");
-      await bull.connect(alice).mint(2, ans, { value: PRICE });
-      await expect(bull.connect(alice).mint(2, ans, { value: PRICE })).to.be.revertedWith("Wrong payment");
-      await expect(bull.connect(alice).mint(2, ans, { value: PRICE * 2n + 1n })).to.be.revertedWith("Wrong payment");
-    });
-    it("payout receives every wei in the same tx; the contract holds none", async function () {
-      const { bull, alice, bob } = await loadFixture(liveFixture);
-      const before = await ethers.provider.getBalance(PAYOUT);
-      let expected = 0n;
-      for (const [s, h, q] of [[alice, "testagent", 10], [bob, "bobagent", 1], [bob, "bobagent", 9]]) {
-        const v = await bull.costOf(s.address, q); expected += v;
-        await bull.connect(s).mint(q, await answerFor(bull, s.address, h), { value: v });
-        expect(await ethers.provider.getBalance(await bull.getAddress())).to.equal(0n);
-      }
-      expect(expected).to.equal(PRICE * 18n);
-      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(expected);
-      expect(await bull.paidMinted()).to.equal(18n);
-    });
-    it("quantity 1-10, 10 per wallet and 10 per Agent ID in total (free + paid)", async function () {
-      const { bull, alice, bob, carol } = await loadFixture(liveFixture);
       const a = await answerFor(bull, alice.address, "testagent");
       await expect(bull.connect(alice).mint(0, a, { value: 0 })).to.be.revertedWith("Bad quantity");
-      await expect(bull.connect(alice).mint(11, a, { value: PRICE * 10n })).to.be.revertedWith("Bad quantity");
-      await mintAt(bull, alice, "testagent", 6); // 1 free + 5 paid
-      expect(await bull.mintedBy(alice.address)).to.equal(6n);
-      await expect(bull.connect(alice).mint(5, a, { value: PRICE * 5n })).to.be.revertedWith("Wallet limit");
-      expect(await bull.mintableBy(alice.address)).to.equal(4n);
-      expect(await bull.mintableBy(carol.address)).to.equal(4n); // shares alice's Agent ID
-      const c = await answerFor(bull, carol.address, "testagent");
-      await expect(bull.connect(carol).mint(5, c, { value: PRICE * 5n })).to.be.revertedWith("Agent ID limit");
-      await mintAt(bull, carol, "testagent", 4);
-      await expect(bull.connect(alice).mint(1, a, { value: PRICE })).to.be.revertedWith("Agent ID limit");
-      expect(await bull.mintedByAgent("testagent")).to.equal(10n);
+      await expect(bull.connect(alice).mint(4, a, { value: FREE_QTY3 + PRICE_THIRD })).to.be.revertedWith("Bad quantity");
+    });
+    it("the 4th bull reverts for the wallet (also after its Agent ID changes)", async function () {
+      const { bull, reg, alice } = await loadFixture(liveFixture);
+      await mintAt(bull, alice, "testagent", 3);
+      expect(await bull.mintableBy(alice.address)).to.equal(0n);
+      const a = await answerFor(bull, alice.address, "testagent");
+      for (const v of [0n, PRICE, PRICE_THIRD]) await expect(bull.connect(alice).mint(1, a, { value: v })).to.be.revertedWith("Wallet limit");
+      await reg.setHandle(alice.address, "freshagent"); // new, unused Agent ID: the wallet is still full
+      expect(await bull.mintableBy(alice.address)).to.equal(0n);
+      const b = await answerFor(bull, alice.address, "freshagent");
+      for (const v of [0n, PRICE, PRICE_THIRD]) await expect(bull.connect(alice).mint(1, b, { value: v })).to.be.revertedWith("Wallet limit");
+    });
+    it("the 4th bull reverts for the Agent ID across wallets", async function () {
+      const { bull, alice, carol } = await loadFixture(liveFixture);
+      await mintAt(bull, alice, "testagent", 1); // free
+      await mintAt(bull, carol, "testagent", 2); // positions 2 and 3: 0.00028 + 0.00035
+      expect(await bull.mintedByAgent("testagent")).to.equal(3n);
       expect(await bull.mintableBy(alice.address)).to.equal(0n);
       expect(await bull.mintableBy(carol.address)).to.equal(0n);
       expect(await bull.freeAvailableTo(carol.address)).to.equal(false);
-      await mintAt(bull, bob, "bobagent", 10); // one mint of the full 10 incl. the free one
-      expect(await bull.mintedBy(bob.address)).to.equal(10n);
-      expect(await bull.freeMintedBy(bob.address)).to.equal(1n);
-      await expect(bull.connect(bob).mint(1, await answerFor(bull, bob.address, "bobagent"), { value: PRICE })).to.be.revertedWith("Wallet limit");
+      const a = await answerFor(bull, alice.address, "testagent");
+      const c = await answerFor(bull, carol.address, "testagent");
+      for (const v of [0n, PRICE, PRICE_THIRD]) {
+        await expect(bull.connect(alice).mint(1, a, { value: v })).to.be.revertedWith("Agent ID limit"); // alice's wallet has only 1
+        await expect(bull.connect(carol).mint(1, c, { value: v })).to.be.revertedWith("Agent ID limit"); // carol's wallet has only 2
+      }
+      expect(await bull.mintedBy(alice.address)).to.equal(1n);
+      expect(await bull.mintedBy(carol.address)).to.equal(2n);
+    });
+    it("over-quantity reverts with the limit even when the rest would fit", async function () {
+      const { bull, alice, carol } = await loadFixture(liveFixture);
+      await mintAt(bull, alice, "testagent", 2);
+      const a = await answerFor(bull, alice.address, "testagent");
+      await expect(bull.connect(alice).mint(2, a, { value: PRICE_THIRD * 2n })).to.be.revertedWith("Wallet limit");
+      const c = await answerFor(bull, carol.address, "testagent");
+      await expect(bull.connect(carol).mint(2, c, { value: PRICE_THIRD * 2n })).to.be.revertedWith("Agent ID limit");
+      await mintAt(bull, carol, "testagent", 1);
+      expect(await bull.mintedByAgent("testagent")).to.equal(3n);
+    });
+  });
+
+  describe("free cap: 905 incl. reserve = 900 public", function () {
+    it("free stops exactly at freeMinted = 905; then non-free quantity 3 = 0.00091 BNB", async function () {
+      const { bull, alice } = await loadFixture(freeDoneFixture);
+      expect(await bull.totalMinted()).to.equal(905n);
+      expect(await bull.freeMinted()).to.equal(905n);
+      expect(await bull.paidMinted()).to.equal(0n);
+      expect(await bull.freeAvailableTo(alice.address)).to.equal(false);
+      expect(await bull.costOf(alice.address, 1)).to.equal(PRICE);
+      expect(await bull.costOf(alice.address, 2)).to.equal(PRICE * 2n);
+      expect(await bull.costOf(alice.address, 3)).to.equal(PAID_QTY3);
+      expect(PAID_QTY3).to.equal(ethers.parseEther("0.00091"));
+      expect(await bull.mintableBy(alice.address)).to.equal(3n);
+      const ans = await answerFor(bull, alice.address, "testagent");
+      await expect(bull.connect(alice).mint(1, ans, { value: 0 })).to.be.revertedWith("Wrong payment");
+      await expect(bull.connect(alice).mint(3, ans, { value: FREE_QTY3 })).to.be.revertedWith("Wrong payment");
+      const before = await ethers.provider.getBalance(PAYOUT);
+      await expect(bull.connect(alice).mint(3, ans, { value: PAID_QTY3 })).to.emit(bull, "Minted").withArgs(alice.address, "testagent", 906n, 3n, false);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(PAID_QTY3);
+      expect(await bull.freeMinted()).to.equal(905n);
+      expect(await bull.paidMinted()).to.equal(3n);
+      expect(await bull.freeMintedBy(alice.address)).to.equal(0n);
+    });
+    it("non-free: mint 1 then 2 later gives the same 0.00091 BNB total", async function () {
+      const { bull, bob } = await loadFixture(freeDoneFixture);
+      const before = await ethers.provider.getBalance(PAYOUT);
+      await mintAt(bull, bob, "bobagent", 1);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(PRICE);
+      expect(await bull.costOf(bob.address, 2)).to.equal(PRICE + PRICE_THIRD);
+      await mintAt(bull, bob, "bobagent", 2);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(PAID_QTY3);
+      expect(await bull.freeMinted()).to.equal(905n);
+    });
+    it("the last free bull (#905) goes to one first mint, then free is over", async function () {
+      const { bull, reg, alice, bob } = await loadFixture(liveFixture);
+      const ws = await newWallets(899);
+      const hs = ws.map((_, i) => "f" + i);
+      await setHandles(reg, ws, hs);
+      for (let i = 0; i < ws.length; i++) await bull.connect(ws[i]).mint(1, await answerFor(bull, ws[i].address, hs[i]));
+      expect(await bull.freeMinted()).to.equal(904n);
+      expect(await bull.freeAvailableTo(alice.address)).to.equal(true);
+      expect(await bull.costOf(alice.address, 3)).to.equal(FREE_QTY3);
+      await mintAt(bull, alice, "testagent", 3); // takes free #905
+      expect(await bull.freeMinted()).to.equal(905n);
+      expect(await bull.freeAvailableTo(bob.address)).to.equal(false);
+      expect(await bull.costOf(bob.address, 3)).to.equal(PAID_QTY3);
+    });
+  });
+
+  describe("payment", function () {
+    it("wrong value reverts (free and non-free, every quantity)", async function () {
+      const { bull, alice } = await loadFixture(liveFixture);
+      const ans = await answerFor(bull, alice.address, "testagent");
+      for (const v of [1n, PRICE, PRICE + 1n, PAID_QTY3, FREE_QTY3 - 1n, FREE_QTY3 + 1n]) {
+        await expect(bull.connect(alice).mint(3, ans, { value: v })).to.be.revertedWith("Wrong payment");
+      }
+      for (const v of [0n, PRICE - 1n, PRICE + 1n, PRICE * 2n]) await expect(bull.connect(alice).mint(2, ans, { value: v })).to.be.revertedWith("Wrong payment");
+      await expect(bull.connect(alice).mint(1, ans, { value: 1n })).to.be.revertedWith("Wrong payment");
+      await expect(bull.connect(alice).mint(1, ans, { value: PRICE })).to.be.revertedWith("Wrong payment");
+      await bull.connect(alice).mint(1, ans, { value: 0 });
+      for (const v of [0n, PRICE - 1n, PRICE + 1n, PRICE * 2n, PRICE + PRICE_THIRD - 1n, PRICE + PRICE_THIRD + 1n]) {
+        await expect(bull.connect(alice).mint(2, ans, { value: v })).to.be.revertedWith("Wrong payment");
+      }
+      await bull.connect(alice).mint(2, ans, { value: PRICE + PRICE_THIRD });
+    });
+    it("payout receives every wei in the same tx; the contract holds none", async function () {
+      const { bull, alice, bob, carol } = await loadFixture(liveFixture);
+      const before = await ethers.provider.getBalance(PAYOUT);
+      let expected = 0n;
+      for (const [s, h, q] of [[alice, "testagent", 1], [bob, "bobagent", 2], [carol, "testagent", 1], [bob, "bobagent", 1], [alice, "testagent", 1]]) {
+        const v = await bull.costOf(s.address, q); expected += v;
+        const pBefore = await ethers.provider.getBalance(PAYOUT);
+        await bull.connect(s).mint(q, await answerFor(bull, s.address, h), { value: v });
+        expect((await ethers.provider.getBalance(PAYOUT)) - pBefore).to.equal(v);
+        expect(await ethers.provider.getBalance(await bull.getAddress())).to.equal(0n);
+      }
+      // alice 0, bob 0 + 0.00028, carol 0.00028 (testagent position 2), bob 0.00035, alice 0.00035 (testagent position 3)
+      expect(expected).to.equal(FREE_QTY3 * 2n);
+      expect((await ethers.provider.getBalance(PAYOUT)) - before).to.equal(expected);
+      expect(await bull.paidMinted()).to.equal(4n);
     });
     it("reverts the whole mint if the payout transfer fails, but a value-0 free mint skips the call", async function () {
       const { bull, alice } = await loadFixture(liveFixture);
@@ -366,25 +419,30 @@ describe("AgenticBull", function () {
         checked++;
       }
       expect(checked).to.be.greaterThan(20);
-      // and the ABI has no function that takes a wallet and returns a single answer-like number besides counters
       const names = bull.interface.fragments.filter((x) => x.type === "function").map((x) => x.name);
       for (const n of ["answerOf", "expectedAnswer", "answer", "solution"]) expect(names).to.not.include(n);
     });
   });
 
   describe("full mint of all 3,000", function () {
-    it("exact tier totals, sold out, every image matches the JS generator", async function () {
-      const { bull, reg } = await loadFixture(freeDoneFixture);
-      const ws = await newWallets(200);
+    it("exact tier totals, sold out, every wei forwarded, every image matches the JS generator", async function () {
+      const { bull, reg, freeWallets, freeHandles } = await loadFixture(freeDoneFixture);
+      const payoutBefore = await ethers.provider.getBalance(PAYOUT);
+      // the 900 free minters each come back for 2 more (positions 2 and 3): 1,800 bulls -> 2,705 minted
+      for (let i = 0; i < freeWallets.length; i++) await mintAt(bull, freeWallets[i], freeHandles[i], 2);
+      expect(await bull.totalMinted()).to.equal(2705n);
+      // 98 new Agent IDs mint 3 each (non-free) and one mints the last 1: 295 bulls -> 3,000
+      const ws = await newWallets(99);
       const hs = ws.map((_, i) => "paid" + i);
       await setHandles(reg, ws, hs);
-      const payoutBefore = await ethers.provider.getBalance(PAYOUT);
-      for (let i = 0; i < ws.length; i++) {
-        await mintAt(bull, ws[i], hs[i], 10);
-      }
-      expect((await ethers.provider.getBalance(PAYOUT)) - payoutBefore).to.equal(PRICE * 2000n); // every wei forwarded
+      for (let i = 0; i < 98; i++) await mintAt(bull, ws[i], hs[i], 3);
+      expect(await bull.mintableBy(ws[98].address)).to.equal(1n); // supply left caps it
+      await mintAt(bull, ws[98], hs[98], 1);
+      const expected = 900n * (PRICE + PRICE_THIRD) + 98n * PAID_QTY3 + PRICE;
+      expect((await ethers.provider.getBalance(PAYOUT)) - payoutBefore).to.equal(expected); // every wei forwarded
       expect(await bull.totalMinted()).to.equal(3000n);
-      expect(await bull.paidMinted()).to.equal(2000n);
+      expect(await bull.freeMinted()).to.equal(905n);
+      expect(await bull.paidMinted()).to.equal(2095n);
       expect((await bull.tierRemaining()).map(Number)).to.deep.equal([0, 0, 0, 0, 0]);
       expect(await ethers.provider.getBalance(await bull.getAddress())).to.equal(0n);
       const counts = [0, 0, 0, 0, 0];
@@ -400,6 +458,7 @@ describe("AgenticBull", function () {
       await reg.setHandle(extra.address, "late");
       await expect(bull.connect(extra).mint(1, await answerFor(bull, extra.address, "late"), { value: PRICE })).to.be.revertedWith("Sold out");
       expect(await bull.mintableBy(extra.address)).to.equal(0n);
+      expect(await bull.freeAvailableTo(extra.address)).to.equal(false);
       // JS preview generator == contract art, and tokenURI image == svgOf, for a spread of tokens incl. every tier
       const ids = [...Array(3000).keys()].map((i) => i + 1).filter((id) => id <= 10 || id % 23 === 0 || id > 2990);
       const seenTiers = new Set();
@@ -420,6 +479,15 @@ describe("AgenticBull", function () {
         }
       }
       expect(seenTiers.size).to.equal(5);
+    });
+  });
+
+  describe("bytecode size", function () {
+    it("runtime bytecode is under the 24,576-byte EIP-170 limit", async function () {
+      const a = await artifacts.readArtifact("AgenticBull");
+      const size = (a.deployedBytecode.length - 2) / 2;
+      console.log("      runtime bytes:", size);
+      expect(size).to.be.lessThan(24576);
     });
   });
 });

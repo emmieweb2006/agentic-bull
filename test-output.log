@@ -2,38 +2,45 @@
 
   AgenticBull
     deployment
-      ✔ mints creator reserve #1-#5 to PAYOUT, counted as free (475ms)
+      ✔ mints creator reserve #1-#5 to PAYOUT, counted as free (405ms)
       ✔ constants, registry, royalty 5% to PAYOUT, interfaces
       ✔ has no owner / admin / withdraw / setter / pause functions
-      ✔ contractURI is on-chain JSON with the marketplace fields (147ms)
-      ✔ contractURI has the exact collection description (72ms)
+      ✔ contractURI is on-chain JSON with the marketplace fields (42ms)
+      ✔ contractURI has the exact collection description
       ✔ tokenURI: base64 JSON, 480x480 crispEdges 24x24 SVG, 7 attributes, exact description
     gate
       ✔ reverts before MINT_START
-      ✔ a wallet without an Agent ID reverts (56ms)
+      ✔ a wallet without an Agent ID reverts (50ms)
       ✔ a wrong answer reverts, the right one mints
       ✔ contract callers revert with EOA only (free and paid)
-      ✔ challengeOf: a and b in 2..20, question wording, depends on wallet (335ms)
-    first bull free
-      ✔ a first mint of 1 is free with value 0; sending BNB for it reverts (46ms)
-      ✔ a first mint of 3 costs exactly 2 x PRICE (1 free + 2 paid)
-      ✔ a second mint is fully paid
-      ✔ free is limited per wallet AND per Agent ID across wallets
+      ✔ challengeOf: a and b in 2..20, question wording, depends on wallet (322ms)
       ✔ handle length counts UTF-8 bytes (bytes(handle).length)
-    after the 1,000 free bulls
-      ✔ free ends at exactly 1,000 (reserve included) and first mints are fully paid (7048ms)
-      ✔ the last free bull goes to one first mint, then free is over (6686ms)
-    payment and limits
-      ✔ wrong value reverts
+    price by position (free minter: free, 0.00028, 0.00035)
+      ✔ free minter, quantity 3 = 0.00063 BNB; costOf per quantity; every wei to PAYOUT
+      ✔ free minter: mint 1 then 2 later gives the same 0.00063 BNB total (and 2 then 1)
+      ✔ free is per wallet AND per Agent ID: a second wallet on the same Agent ID continues at its position
+    limits: 3 per wallet and 3 per Agent ID
+      ✔ quantity must be 1-3
+      ✔ the 4th bull reverts for the wallet (also after its Agent ID changes)
+      ✔ the 4th bull reverts for the Agent ID across wallets
+      ✔ over-quantity reverts with the limit even when the rest would fit
+    free cap: 905 incl. reserve = 900 public
+      ✔ free stops exactly at freeMinted = 905; then non-free quantity 3 = 0.00091 BNB (5863ms)
+      ✔ non-free: mint 1 then 2 later gives the same 0.00091 BNB total
+      ✔ the last free bull (#905) goes to one first mint, then free is over (5554ms)
+    payment
+      ✔ wrong value reverts (free and non-free, every quantity)
       ✔ payout receives every wei in the same tx; the contract holds none
-      ✔ quantity 1-10, 10 per wallet and 10 per Agent ID in total (free + paid)
       ✔ reverts the whole mint if the payout transfer fails, but a value-0 free mint skips the call
     no function leaks the answer
-      ✔ no view/pure output equals the answer, and the question never contains it (198ms)
+      ✔ no view/pure output equals the answer, and the question never contains it (158ms)
     full mint of all 3,000
       tier totals: 1800 / 600 / 375 / 150 / 75
-      ✔ exact tier totals, sold out, every image matches the JS generator (34871ms)
+      ✔ exact tier totals, sold out, every wei forwarded, every image matches the JS generator (23910ms)
+    bytecode size
+      runtime bytes: 20940
+      ✔ runtime bytecode is under the 24,576-byte EIP-170 limit
 
 
-  24 passing (50s)
+  28 passing (37s)
 

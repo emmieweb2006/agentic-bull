@@ -1,14 +1,14 @@
 {
   "name": "Agentic Bull",
-  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+  "description": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.",
   "descriptionI18n": {
-    "en": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
-    "zh-CN": "BNB Chain 上的 3,000 头 Agentic Bull，仅限 .ai Agent ID 铸造。在 1,000 个免费名额用完前，每个 Agent ID 的第一头公牛免费。额外的公牛每头 0.00014 BNB，每个 Agent ID 最多 10 头。即时揭晓。",
-    "vi": "3.000 Agentic Bull trên BNB Chain, chỉ Agent ID .ai mới mint được. Chú bò đầu tiên của mỗi Agent ID miễn phí khi 1.000 suất miễn phí vẫn còn. Mỗi chú bò thêm giá 0,00014 BNB, tối đa 10 chú cho mỗi Agent ID. Hiện hình ngay lập tức.",
-    "ja": "BNB Chain 上の 3,000 体の Agentic Bull。ミントできるのは .ai Agent ID のみ。無料枠 1,000 体が残っている間は、各 Agent ID の最初の 1 体が無料。追加の Bull は 1 体 0.00014 BNB、Agent ID ごとに最大 10 体。ミント後すぐにリビール。",
-    "ko": "BNB Chain 위의 Agentic Bull 3,000개, .ai Agent ID만 민팅할 수 있습니다. 무료 1,000개가 남아 있는 동안 각 Agent ID의 첫 황소는 무료입니다. 추가 황소는 개당 0.00014 BNB이며 Agent ID당 최대 10개까지. 즉시 공개됩니다.",
-    "th": "Agentic Bull 3,000 ตัวบน BNB Chain มินต์ได้เฉพาะ Agent ID .ai เท่านั้น วัวตัวแรกของแต่ละ Agent ID ฟรีระหว่างที่โควตาฟรี 1,000 ตัวยังเหลืออยู่ ตัวเพิ่มเติมตัวละ 0.00014 BNB สูงสุด 10 ตัวต่อ Agent ID เปิดเผยทันที",
-    "id": "3.000 Agentic Bull di BNB Chain, hanya bisa di-mint oleh Agent ID .ai. Banteng pertama setiap Agent ID gratis selama 1.000 jatah gratis masih ada. Banteng tambahan 0,00014 BNB, maksimal 10 per Agent ID. Langsung terungkap."
+    "en": "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.",
+    "zh-CN": "BNB Chain 上的 3,000 头 Agentic Bull，仅限 .ai Agent ID 铸造。前 900 个 Agent ID 的第一头公牛免费。其他公牛每头 0.00028 BNB，第三头 0.00035 BNB，每个 Agent ID 最多 3 头。即时揭晓。",
+    "vi": "3.000 Agentic Bull trên BNB Chain, chỉ Agent ID .ai mới mint được. 900 Agent ID đầu tiên được chú bò đầu tiên miễn phí. Các chú bò khác giá 0,00028 BNB và chú thứ ba giá 0,00035 BNB, tối đa 3 chú cho mỗi Agent ID. Hiện hình ngay lập tức.",
+    "ja": "BNB Chain 上の 3,000 体の Agentic Bull。ミントできるのは .ai Agent ID のみ。最初の 900 の Agent ID は最初の 1 体が無料。それ以外の Bull は 1 体 0.00028 BNB、3 体目は 0.00035 BNB、Agent ID ごとに最大 3 体。ミント後すぐにリビール。",
+    "ko": "BNB Chain 위의 Agentic Bull 3,000개, .ai Agent ID만 민팅할 수 있습니다. 선착순 900개 Agent ID는 첫 황소를 무료로 받습니다. 그 외 황소는 개당 0.00028 BNB, 세 번째 황소는 0.00035 BNB이며 Agent ID당 최대 3개까지. 즉시 공개됩니다.",
+    "th": "Agentic Bull 3,000 ตัวบน BNB Chain มินต์ได้เฉพาะ Agent ID .ai เท่านั้น 900 Agent ID แรกได้วัวตัวแรกฟรี วัวตัวอื่นตัวละ 0.00028 BNB และตัวที่สาม 0.00035 BNB สูงสุด 3 ตัวต่อ Agent ID เปิดเผยทันที",
+    "id": "3.000 Agentic Bull di BNB Chain, hanya bisa di-mint oleh Agent ID .ai. 900 Agent ID pertama mendapat banteng pertama gratis. Banteng lainnya 0,00028 BNB dan banteng ketiga 0,00035 BNB, maksimal 3 per Agent ID. Langsung terungkap."
   },
   "chain": "BNB Smart Chain",
   "chainId": 56,
@@ -24,23 +24,42 @@
   "docs": "https://agentic-bull.pages.dev/llms.txt",
   "supply": {
     "max": 3000,
-    "free": 1000,
-    "reserve": 5
+    "free": 900,
+    "freeCap": 905,
+    "reserve": 5,
+    "note": "Reserve #1-#5 counts toward FREE_CAP 905, leaving 900 free for the public"
   },
   "price": {
-    "wei": "140000000000000",
-    "bnb": "0.00014"
+    "wei": "280000000000000",
+    "bnb": "0.00028",
+    "third": {
+      "wei": "350000000000000",
+      "bnb": "0.00035"
+    }
+  },
+  "pricing": {
+    "position": "pos = max(mintedBy(wallet), mintedByAgent(agentId)); the bulls of a mint take positions pos+1 .. pos+quantity",
+    "byPosition": {
+      "1": "free if eligible, otherwise 0.00028 BNB (280000000000000 wei)",
+      "2": "0.00028 BNB (280000000000000 wei)",
+      "3": "0.00035 BNB (350000000000000 wei)"
+    },
+    "totals": {
+      "threeWithFree": "630000000000000",
+      "threeWithoutFree": "910000000000000"
+    },
+    "value": "msg.value must equal costOf(wallet, quantity) exactly"
   },
   "limits": {
-    "perWallet": 10,
-    "perAgentId": 10,
-    "maxQuantityPerTx": 10,
+    "perWallet": 3,
+    "perAgentId": 3,
+    "maxQuantityPerTx": 3,
     "note": "Totals, free + paid"
   },
   "free": {
-    "rule": "The first bull of a mint is free if neither the wallet nor its Agent ID ever had a free bull and freeMinted() < 1000. Reserve #1-#5 counts toward the 1,000.",
+    "rule": "Position 1 is free if neither the wallet nor its Agent ID ever had a free bull and freeMinted() < 905. Reserve #1-#5 counts toward the 905, so 900 are free for the public.",
     "check": "freeAvailableTo(address) returns bool",
-    "left": "1000 - freeMinted()"
+    "left": "905 - freeMinted() (out of 900)"
   },
   "requirements": [
     "Sender must be an EOA (msg.sender == tx.origin)",
@@ -69,7 +88,7 @@
       "step": 2,
       "call": "costOf(address myWallet, uint256 quantity)",
       "selector": "0x66be6071",
-      "do": "returns the exact value in wei; quantity 1-10"
+      "do": "returns the exact value in wei; quantity 1-3, at most mintableBy(myWallet)"
     },
     {
       "step": 3,
@@ -81,13 +100,15 @@
     }
   ],
   "notes": [
-    "Max 10 per wallet and 10 per Agent ID. The first bull is free while the 1,000 free last.",
+    "Max 3 per wallet and 3 per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB.",
     "Chain ID must be 56.",
     "mintableBy(wallet) = how many this wallet can still mint."
   ],
   "views": {
     "costOf": "0x66be6071",
     "freeAvailableTo": "0x453322ed",
+    "mintedBy": "0x3cef28d2",
+    "mintedByAgent": "0xbc860502",
     "totalMinted": "0xa2309ff8",
     "freeMinted": "0xd10a1a2b",
     "mintableBy": "0x1d2e6765",
@@ -110,12 +131,12 @@
     "Payout failed"
   ],
   "prompt": {
-    "en": "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 10. The first bull is free while the 1,000 free last. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt",
-    "zh-CN": "请在 BNB Chain（链 ID 56）上帮我铸造 Agentic Bull。合约 PASTE_ADDRESS_HERE。我的钱包需要拥有 .ai Agent ID。1）调用 challengeOf(我的钱包)：答案 = a x b + 我的 Agent ID 去掉 .ai 后的字符数。2）调用 costOf(我的钱包, quantity) 获取 value（单位 wei）。3）用正好这个 value 调用 mint(quantity, answer)。最多 10 个。在 1,000 个免费名额用完前，第一头免费。先告诉我费用，然后发送交易，并给我交易哈希和代币 ID。说明：https://agentic-bull.pages.dev/llms.txt",
-    "vi": "Hãy mint Agentic Bull cho tôi trên BNB Chain (chain ID 56). Hợp đồng PASTE_ADDRESS_HERE. Ví của tôi cần có Agent ID .ai. 1) Gọi challengeOf(víCủaTôi): answer = a x b + số ký tự trong Agent ID của tôi, không tính .ai. 2) Gọi costOf(víCủaTôi, quantity) để lấy value (wei). 3) Gọi mint(quantity, answer) với đúng value đó. Tối đa 10. Chú bò đầu tiên miễn phí khi 1.000 suất miễn phí còn. Cho tôi xem chi phí trước, rồi gửi giao dịch và đưa tôi tx hash cùng token ID. Đặc tả: https://agentic-bull.pages.dev/llms.txt",
-    "ja": "BNB Chain（チェーン ID 56）で Agentic Bull をミントしてください。コントラクト PASTE_ADDRESS_HERE。私のウォレットには .ai Agent ID が必要です。1）challengeOf(私のウォレット) を呼び出し、answer = a x b + .ai を除いた私の Agent ID の文字数。2）costOf(私のウォレット, quantity) を呼び出して value（wei）を取得。3）ちょうどその value で mint(quantity, answer) を呼び出します。最大 10 体。無料枠 1,000 体が残っている間は最初の 1 体が無料です。まず費用を見せてから送信し、tx ハッシュとトークン ID を教えてください。仕様：https://agentic-bull.pages.dev/llms.txt",
-    "ko": "BNB Chain(체인 ID 56)에서 Agentic Bull을 민팅해 줘. 컨트랙트 PASTE_ADDRESS_HERE. 내 지갑에는 .ai Agent ID가 있어야 해. 1) challengeOf(내지갑) 호출: answer = a x b + .ai를 뺀 내 Agent ID의 글자 수. 2) costOf(내지갑, quantity)를 호출해서 value(wei)를 받아. 3) 정확히 그 value로 mint(quantity, answer)를 호출해. 최대 10개. 무료 1,000개가 남아 있는 동안 첫 황소는 무료야. 먼저 비용을 보여 주고, 그다음 전송한 뒤 tx 해시와 토큰 ID를 알려 줘. 사양: https://agentic-bull.pages.dev/llms.txt",
-    "th": "ช่วยมินต์ Agentic Bull ให้ฉันบน BNB Chain (chain ID 56) สัญญา PASTE_ADDRESS_HERE กระเป๋าของฉันต้องมี Agent ID .ai 1) เรียก challengeOf(กระเป๋าของฉัน): answer = a x b + จำนวนตัวอักษรใน Agent ID ของฉันโดยไม่รวม .ai 2) เรียก costOf(กระเป๋าของฉัน, quantity) เพื่อรับ value (หน่วย wei) 3) เรียก mint(quantity, answer) ด้วย value นั้นพอดี สูงสุด 10 ตัว ตัวแรกฟรีระหว่างที่ยังมีโควตาฟรี 1,000 ตัว แสดงค่าใช้จ่ายให้ฉันดูก่อน แล้วจึงส่ง และบอก tx hash กับ token ID ให้ฉัน สเปก: https://agentic-bull.pages.dev/llms.txt",
-    "id": "Mint Agentic Bull untuk saya di BNB Chain (chain ID 56). Kontrak PASTE_ADDRESS_HERE. Dompet saya harus punya Agent ID .ai. 1) Panggil challengeOf(dompetSaya): answer = a x b + jumlah karakter Agent ID saya tanpa .ai. 2) Panggil costOf(dompetSaya, quantity) untuk mendapatkan value (wei). 3) Panggil mint(quantity, answer) dengan value tepat sebesar itu. Maks 10. Banteng pertama gratis selama 1.000 jatah gratis masih ada. Tunjukkan biayanya dulu, lalu kirim dan berikan tx hash serta token ID. Spesifikasi: https://agentic-bull.pages.dev/llms.txt"
+    "en": "Mint Agentic Bull for me on BNB Chain (chain ID 56). Contract PASTE_ADDRESS_HERE. My wallet needs a .ai Agent ID. 1) Call challengeOf(myWallet): answer = a x b + the number of characters in my Agent ID without .ai. 2) Call costOf(myWallet, quantity) to get the value in wei. 3) Call mint(quantity, answer) with exactly that value. Max 3 per wallet and per Agent ID. The first 900 Agent IDs get their first bull free; other bulls are 0.00028 BNB and the third is 0.00035 BNB. Show me the cost first, then send it and give me the tx hash and token IDs. Spec: https://agentic-bull.pages.dev/llms.txt",
+    "zh-CN": "请在 BNB Chain（链 ID 56）上帮我铸造 Agentic Bull。合约 PASTE_ADDRESS_HERE。我的钱包需要拥有 .ai Agent ID。1）调用 challengeOf(我的钱包)：答案 = a x b + 我的 Agent ID 去掉 .ai 后的字符数。2）调用 costOf(我的钱包, quantity) 获取 value（单位 wei）。3）用正好这个 value 调用 mint(quantity, answer)。每个钱包、每个 Agent ID 最多 3 个。前 900 个 Agent ID 的第一头公牛免费；其他公牛每头 0.00028 BNB，第三头 0.00035 BNB。先告诉我费用，然后发送交易，并给我交易哈希和代币 ID。说明：https://agentic-bull.pages.dev/llms.txt",
+    "vi": "Hãy mint Agentic Bull cho tôi trên BNB Chain (chain ID 56). Hợp đồng PASTE_ADDRESS_HERE. Ví của tôi cần có Agent ID .ai. 1) Gọi challengeOf(víCủaTôi): answer = a x b + số ký tự trong Agent ID của tôi, không tính .ai. 2) Gọi costOf(víCủaTôi, quantity) để lấy value (wei). 3) Gọi mint(quantity, answer) với đúng value đó. Tối đa 3 mỗi ví và mỗi Agent ID. 900 Agent ID đầu tiên được chú bò đầu tiên miễn phí; các chú khác giá 0,00028 BNB và chú thứ ba giá 0,00035 BNB. Cho tôi xem chi phí trước, rồi gửi giao dịch và đưa tôi tx hash cùng token ID. Đặc tả: https://agentic-bull.pages.dev/llms.txt",
+    "ja": "BNB Chain（チェーン ID 56）で Agentic Bull をミントしてください。コントラクト PASTE_ADDRESS_HERE。私のウォレットには .ai Agent ID が必要です。1）challengeOf(私のウォレット) を呼び出し、answer = a x b + .ai を除いた私の Agent ID の文字数。2）costOf(私のウォレット, quantity) を呼び出して value（wei）を取得。3）ちょうどその value で mint(quantity, answer) を呼び出します。ウォレットごと・Agent ID ごとに最大 3 体。最初の 900 の Agent ID は最初の 1 体が無料、それ以外は 1 体 0.00028 BNB、3 体目は 0.00035 BNB です。まず費用を見せてから送信し、tx ハッシュとトークン ID を教えてください。仕様：https://agentic-bull.pages.dev/llms.txt",
+    "ko": "BNB Chain(체인 ID 56)에서 Agentic Bull을 민팅해 줘. 컨트랙트 PASTE_ADDRESS_HERE. 내 지갑에는 .ai Agent ID가 있어야 해. 1) challengeOf(내지갑) 호출: answer = a x b + .ai를 뺀 내 Agent ID의 글자 수. 2) costOf(내지갑, quantity)를 호출해서 value(wei)를 받아. 3) 정확히 그 value로 mint(quantity, answer)를 호출해. 지갑당·Agent ID당 최대 3개. 선착순 900개 Agent ID는 첫 황소가 무료이고, 그 외 황소는 개당 0.00028 BNB, 세 번째는 0.00035 BNB야. 먼저 비용을 보여 주고, 그다음 전송한 뒤 tx 해시와 토큰 ID를 알려 줘. 사양: https://agentic-bull.pages.dev/llms.txt",
+    "th": "ช่วยมินต์ Agentic Bull ให้ฉันบน BNB Chain (chain ID 56) สัญญา PASTE_ADDRESS_HERE กระเป๋าของฉันต้องมี Agent ID .ai 1) เรียก challengeOf(กระเป๋าของฉัน): answer = a x b + จำนวนตัวอักษรใน Agent ID ของฉันโดยไม่รวม .ai 2) เรียก costOf(กระเป๋าของฉัน, quantity) เพื่อรับ value (หน่วย wei) 3) เรียก mint(quantity, answer) ด้วย value นั้นพอดี สูงสุด 3 ตัวต่อกระเป๋าและต่อ Agent ID 900 Agent ID แรกได้วัวตัวแรกฟรี วัวตัวอื่นตัวละ 0.00028 BNB และตัวที่สาม 0.00035 BNB แสดงค่าใช้จ่ายให้ฉันดูก่อน แล้วจึงส่ง และบอก tx hash กับ token ID ให้ฉัน สเปก: https://agentic-bull.pages.dev/llms.txt",
+    "id": "Mint Agentic Bull untuk saya di BNB Chain (chain ID 56). Kontrak PASTE_ADDRESS_HERE. Dompet saya harus punya Agent ID .ai. 1) Panggil challengeOf(dompetSaya): answer = a x b + jumlah karakter Agent ID saya tanpa .ai. 2) Panggil costOf(dompetSaya, quantity) untuk mendapatkan value (wei). 3) Panggil mint(quantity, answer) dengan value tepat sebesar itu. Maks 3 per dompet dan per Agent ID. 900 Agent ID pertama mendapat banteng pertama gratis; banteng lainnya 0,00028 BNB dan banteng ketiga 0,00035 BNB. Tunjukkan biayanya dulu, lalu kirim dan berikan tx hash serta token ID. Spesifikasi: https://agentic-bull.pages.dev/llms.txt"
   }
 }

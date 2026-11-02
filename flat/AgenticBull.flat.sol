@@ -1782,22 +1782,25 @@ pragma solidity ^0.8.24;
 interface IAgentIdRegistry { function handleOf(address wallet) external view returns (string memory); }
 
 /// @title Agentic Bull - 3,000 fully onchain pixel bulls for AI agents with an Agent ID on BNB Chain.
-/// @notice Agent ID holders only. While the first 1,000 free bulls last, the first bull of each wallet + Agent ID is free; every other bull costs 0.00014 BNB.
+/// @notice Agent ID holders only. Max 3 bulls per wallet and 3 per Agent ID. Price by position (bulls already minted by the wallet or its
+///         Agent ID, whichever is larger, + 1/2/3): #1 free while free bulls last (905 incl. the 5 reserve = 900 public) and neither the
+///         wallet nor its Agent ID had a free bull, otherwise 0.00028 BNB; #2 0.00028 BNB; #3 0.00035 BNB.
 ///         Independent community project, not affiliated with Binance.
 /// @dev No owner, no admin, no pause, no withdraw, no setters. Every payment is forwarded to PAYOUT inside the mint.
 ///      1) challengeOf(wallet) -> (question, a, b). answer = a * b + number of characters in your Agent ID without ".ai".
 ///      2) costOf(wallet, quantity) -> exact value in wei.
-///      3) mint(quantity, answer) with exactly that value. quantity 1-10; max 10 per wallet and 10 per Agent ID in total.
+///      3) mint(quantity, answer) with exactly that value. quantity 1-3; max 3 per wallet and 3 per Agent ID in total.
 contract AgenticBull is ERC721, ERC2981 {
     using Strings for uint256;
 
     IAgentIdRegistry public constant registry = IAgentIdRegistry(0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F);
     address public constant PAYOUT = 0x5ec628f3339B1fEC2e8572a5b307932cC3bCdd1a;
     uint256 public constant MAX_SUPPLY = 3000;
-    uint256 public constant FREE_SUPPLY = 1000;
-    uint256 public constant PRICE = 140000000000000; // 0.00014 BNB
-    uint256 public constant MAX_PER_WALLET = 10;
-    uint256 public constant MAX_PER_AGENT = 10;
+    uint256 public constant FREE_CAP = 905; // reserve #1-#5 included: 900 public free bulls
+    uint256 public constant PRICE = 280000000000000; // 0.00028 BNB: position 1 (when not free) and position 2
+    uint256 public constant PRICE_THIRD = 350000000000000; // 0.00035 BNB: position 3
+    uint256 public constant MAX_PER_WALLET = 3;
+    uint256 public constant MAX_PER_AGENT = 3;
     uint256 public constant RESERVE = 5;
     uint256 public immutable MINT_START;
 
@@ -1835,19 +1838,23 @@ contract AgenticBull is ERC721, ERC2981 {
 
     // ------------------------------------------------------------------ mint
 
-    /// @notice Mint 1-10 bulls. The first bull is free if this wallet and its Agent ID never had a free bull and free bulls remain
-    ///         (freeMinted() < 1,000, reserve included). value must be exactly costOf(msg.sender, quantity) = PRICE * (quantity - freeCount).
+    /// @notice Mint 1-3 bulls. Position = max(bulls minted by this wallet, bulls minted by its Agent ID) + 1, 2, 3 within the mint.
+    ///         Position 1 is free if freeMinted() < 905 and neither the wallet nor its Agent ID had a free bull, otherwise PRICE;
+    ///         position 2 costs PRICE; position 3 costs PRICE_THIRD. value must be exactly costOf(msg.sender, quantity).
     function mint(uint256 quantity, uint256 answer) external payable {
         string memory handle = _gate(answer);
-        require(quantity >= 1 && quantity <= 10, "Bad quantity");
+        require(quantity >= 1 && quantity <= 3, "Bad quantity");
         require(_minted + quantity <= MAX_SUPPLY, "Sold out");
         Count storage w = _wallet[msg.sender];
         Count storage g = _agent[keccak256(bytes(handle))];
-        require(w.free + w.paid + quantity <= MAX_PER_WALLET, "Wallet limit");
-        require(g.free + g.paid + quantity <= MAX_PER_AGENT, "Agent ID limit");
-        bool free = w.free == 0 && g.free == 0 && _free < FREE_SUPPLY;
+        uint256 wm = w.free + w.paid;
+        uint256 gm = g.free + g.paid;
+        require(wm + quantity <= MAX_PER_WALLET, "Wallet limit");
+        require(gm + quantity <= MAX_PER_AGENT, "Agent ID limit");
+        uint256 pos = wm > gm ? wm : gm;
+        bool free = pos == 0 && w.free == 0 && g.free == 0 && _free < FREE_CAP;
+        require(msg.value == _price(pos, quantity, free), "Wrong payment");
         uint256 paid = free ? quantity - 1 : quantity;
-        require(msg.value == PRICE * paid, "Wrong payment");
         if (free) { w.free = 1; g.free = 1; _free += 1; }
         w.paid += uint128(paid);
         g.paid += uint128(paid);
@@ -1886,6 +1893,24 @@ contract AgenticBull is ERC721, ERC2981 {
         _minted = id;
     }
 
+    /// @dev Total price of `qty` bulls starting after position `pos` (bulls already minted). Position 1: free or PRICE,
+    ///      position 2: PRICE, position 3 (and beyond, never mintable): PRICE_THIRD.
+    function _price(uint256 pos, uint256 qty, bool free) private pure returns (uint256 total) {
+        for (uint256 p = pos + 1; p <= pos + qty; ++p) {
+            if (p >= 3) total += PRICE_THIRD;
+            else if (p == 2 || !free) total += PRICE;
+        }
+    }
+
+    /// @dev Bulls already minted by `wallet` or its Agent ID, whichever is larger. Agent ID part is 0 without an Agent ID.
+    function _pos(address wallet) private view returns (uint256 pos, string memory handle) {
+        handle = registry.handleOf(wallet);
+        Count memory w = _wallet[wallet];
+        Count memory g = _agent[keccak256(bytes(handle))];
+        pos = w.free + w.paid;
+        if (bytes(handle).length > 0 && g.free + g.paid > pos) pos = g.free + g.paid;
+    }
+
     function _ab(address wallet) private view returns (uint256 a, uint256 b) {
         uint256 h = uint256(keccak256(abi.encodePacked(wallet, address(this))));
         a = 2 + (h % 19);
@@ -1914,32 +1939,30 @@ contract AgenticBull is ERC721, ERC2981 {
         for (uint256 i; i < 5; ++i) r[i] = _left[i];
     }
 
-    /// @notice How many more this wallet can mint: min(wallet left, Agent ID left, supply left). 0 without an Agent ID.
+    /// @notice How many more this wallet can mint: min(3 - max(wallet minted, Agent ID minted), supply left). 0 without an Agent ID.
     function mintableBy(address wallet) public view returns (uint256) {
-        string memory handle = registry.handleOf(wallet);
-        if (bytes(handle).length == 0) return 0;
-        Count memory w = _wallet[wallet];
-        Count memory g = _agent[keccak256(bytes(handle))];
-        uint256 m = MAX_PER_WALLET - (w.free + w.paid);
-        uint256 n = g.free + g.paid >= MAX_PER_AGENT ? 0 : MAX_PER_AGENT - (g.free + g.paid);
-        if (n < m) m = n;
-        n = MAX_SUPPLY - _minted;
+        (uint256 pos, string memory handle) = _pos(wallet);
+        if (bytes(handle).length == 0 || pos >= MAX_PER_WALLET) return 0;
+        uint256 m = MAX_PER_WALLET - pos;
+        uint256 n = MAX_SUPPLY - _minted;
         return n < m ? n : m;
     }
 
-    /// @notice True if this wallet's next mint starts with a free bull: it has an Agent ID, neither the wallet nor the Agent ID
-    ///         has had a free bull, free bulls remain, and it can still mint.
+    /// @notice True if this wallet's next bull is free: it has an Agent ID, neither the wallet nor the Agent ID has minted yet
+    ///         (so neither had a free bull), freeMinted() < 905, and it can still mint.
     function freeAvailableTo(address wallet) public view returns (bool) {
-        if (_free >= FREE_SUPPLY || _wallet[wallet].free != 0) return false;
-        string memory handle = registry.handleOf(wallet);
+        (uint256 pos, string memory handle) = _pos(wallet);
+        if (_free >= FREE_CAP || pos != 0 || _wallet[wallet].free != 0) return false;
         if (bytes(handle).length == 0 || _agent[keccak256(bytes(handle))].free != 0) return false;
         return mintableBy(wallet) > 0;
     }
 
-    /// @notice Exact wei this wallet must send to mint `quantity` bulls now: PRICE * (quantity - 1 if the first is free).
+    /// @notice Exact wei this wallet must send to mint `quantity` bulls now. Free minters: 0, 0.00028, 0.00035 BNB per bull
+    ///         (1 = 0, 2 = 0.00028, 3 = 0.00063 BNB); everyone else 0.00028, 0.00028, 0.00035 (1 = 0.00028, 2 = 0.00056, 3 = 0.00091 BNB).
+    ///         Continues from bulls already minted. Check mintableBy(wallet) first: a quantity above it reverts in mint.
     function costOf(address wallet, uint256 quantity) external view returns (uint256) {
-        if (quantity == 0) return 0;
-        return PRICE * (freeAvailableTo(wallet) ? quantity - 1 : quantity);
+        (uint256 pos, ) = _pos(wallet);
+        return _price(pos, quantity, freeAvailableTo(wallet));
     }
 
     /// @notice The agent challenge for a wallet. The answer itself is never returned by any function.
@@ -1975,7 +1998,7 @@ contract AgenticBull is ERC721, ERC2981 {
     function contractURI() external pure returns (string memory) {
         return _json(string.concat(
             '{"name":"Agentic Bull","description":"',
-            "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. Each Agent ID's first bull is free while the 1,000 free last. Extra bulls are 0.00014 BNB, up to 10 per Agent ID. Revealed instantly.",
+            "3,000 Agentic Bulls on BNB Chain, minted only by .ai Agent IDs. The first 900 Agent IDs get their first bull free. Other bulls are 0.00028 BNB and the third is 0.00035 BNB, up to 3 per Agent ID. Revealed instantly.",
             '","image":"data:image/svg+xml;base64,',
             Base64.encode(bytes(_svg(0x01020003, 4))),
             '","external_link":"https://agentic-bull.pages.dev","seller_fee_basis_points":500,"fee_recipient":"0x5ec628f3339b1fec2e8572a5b307932cc3bcdd1a"}'
